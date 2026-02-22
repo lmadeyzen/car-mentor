@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import logo from "./assets/logo.png";
+import vwImage from "./assets/vw.png";
 
 type Car = {
   id: number;
@@ -42,12 +43,12 @@ const CARS: Car[] = [
   },
   {
     id: 3,
-    img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&h=600&fit=crop&q=80",
+    img: vwImage,
     brand: "Volkswagen",
-    model: "Golf VIII 1.5 eTSI",
-    year: 2021,
-    mileage: "61 000 km",
-    price: "99 900 zł",
+    model: "Tiguan 2.0 TDI 4Motion R-Line",
+    year: 2017,
+    mileage: "1 968 cm3 • 500 Nm",
+    price: "240 KM • DSG • Zapytaj o cenę",
     tag: "Od ręki",
   },
   {
