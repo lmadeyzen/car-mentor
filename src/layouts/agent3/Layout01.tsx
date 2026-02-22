@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import logo from "./assets/logo.png";
 import vwImage from "./assets/vw.png";
@@ -382,16 +382,89 @@ const Price = styled.p`
   font-weight: 800;
 `;
 
-const CardButton = styled.a<{ $isDark: boolean }>`
+const CardButton = styled.button<{ $isDark: boolean }>`
   display: inline-flex;
   width: 100%;
   justify-content: center;
+  align-items: center;
   border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
   color: ${({ $isDark }) => ($isDark ? "#0c1613" : ACCENT_COLOR)};
   background: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : "transparent")};
   border-radius: 11px;
   padding: 10px 14px;
   font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+`;
+
+const ModalOverlay = styled.div<{ $isDark: boolean }>`
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: ${({ $isDark }) => ($isDark ? "rgba(6, 10, 9, 0.74)" : "rgba(0, 0, 0, 0.45)")};
+`;
+
+const ModalCard = styled.div<{ $isDark: boolean }>`
+  width: min(520px, 100%);
+  border-radius: 18px;
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#335048" : "#d5ddd9")};
+  background: ${({ $isDark }) => ($isDark ? "#14201c" : "white")};
+  color: ${({ $isDark }) => ($isDark ? "#eff4f2" : "#19201d")};
+  padding: 22px;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
+`;
+
+const ModalHead = styled.div`
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.2rem;
+`;
+
+const CloseButton = styled.button<{ $isDark: boolean }>`
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#44635a" : "#cad4d0")};
+  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f7faf9")};
+  color: ${({ $isDark }) => ($isDark ? "#d8e4e0" : "#1d2a26")};
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 8px 11px;
+  cursor: pointer;
+`;
+
+const ModalText = styled.p<{ $isDark: boolean }>`
+  margin-top: 12px;
+  margin-bottom: 16px;
+  color: ${({ $isDark }) => ($isDark ? "#c6d4cf" : "#43514c")};
+  line-height: 1.5;
+`;
+
+const ContactActions = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ContactLink = styled.a<{ $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  background: ${({ $isDark }) => ($isDark ? "#1f332d" : "#eaf6f2")};
+  color: ${({ $isDark }) => ($isDark ? "#e8f4ef" : ACCENT_COLOR)};
   font-weight: 700;
 `;
 
@@ -478,6 +551,26 @@ const Copyright = styled.p<{ $isDark: boolean }>`
 
 export default function Layout01() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [contactCar, setContactCar] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!contactCar) {
+      return;
+    }
+
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setContactCar(null);
+      }
+    };
+
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [contactCar]);
+
+  const emailSubject = contactCar
+    ? encodeURIComponent(`Zapytanie o auto: ${contactCar}`)
+    : encodeURIComponent("Zapytanie o auto");
 
   return (
     <Page>
@@ -547,7 +640,11 @@ export default function Layout01() {
                   {car.year} • {car.mileage}
                 </Meta>
                 <Price>{car.price}</Price>
-                <CardButton $isDark={isDarkMode} href="#contact">
+                <CardButton
+                  type="button"
+                  $isDark={isDarkMode}
+                  onClick={() => setContactCar(`${car.brand} ${car.model}`)}
+                >
                   Zapytaj o to auto
                 </CardButton>
               </CarBody>
@@ -615,6 +712,42 @@ export default function Layout01() {
           </div>
         </FooterGrid>
       </Footer>
+      {contactCar ? (
+        <ModalOverlay $isDark={isDarkMode} onClick={() => setContactCar(null)}>
+          <ModalCard
+            $isDark={isDarkMode}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contact-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <ModalHead>
+              <ModalTitle id="contact-modal-title">Skontaktuj się z nami</ModalTitle>
+              <CloseButton
+                type="button"
+                $isDark={isDarkMode}
+                onClick={() => setContactCar(null)}
+              >
+                Zamknij
+              </CloseButton>
+            </ModalHead>
+            <ModalText $isDark={isDarkMode}>
+              Wybierz preferowaną formę kontaktu dla auta: <strong>{contactCar}</strong>
+            </ModalText>
+            <ContactActions>
+              <ContactLink
+                $isDark={isDarkMode}
+                href={`mailto:kontakt@carmentor.pl?subject=${emailSubject}`}
+              >
+                kontakt@carmentor.pl
+              </ContactLink>
+              <ContactLink $isDark={isDarkMode} href="tel:+48600123456">
+                +48 600 123 456
+              </ContactLink>
+            </ContactActions>
+          </ModalCard>
+        </ModalOverlay>
+      ) : null}
     </Page>
   );
 }
