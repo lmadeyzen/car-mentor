@@ -1,4 +1,5 @@
 import styled, { createGlobalStyle } from "styled-components";
+import logo from "./assets/logo.png";
 
 type Car = {
   id: number;
@@ -103,10 +104,13 @@ const STEPS: Step[] = [
   },
 ];
 
+const ACCENT_COLOR = "#00573F";
+
 const GlobalStyle = createGlobalStyle`
+  @import url("https://fonts.cdnfonts.com/css/arboria");
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Arboria", Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #161616;
     background: #f5f5f5;
   }
@@ -144,9 +148,13 @@ const NavInner = styled(Section)`
 `;
 
 const Logo = styled.div`
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+`;
+
+const LogoImage = styled.img`
+  width: clamp(155px, 13vw, 210px);
+  height: auto;
 `;
 
 const Links = styled.div`
@@ -154,6 +162,10 @@ const Links = styled.div`
   gap: 30px;
   color: #3a3a3a;
   font-weight: 500;
+
+  a:hover {
+    color: ${ACCENT_COLOR};
+  }
 
   @media (max-width: 1023px) {
     gap: 18px;
@@ -173,7 +185,7 @@ const MobileMenu = styled.button`
   padding: 8px 12px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #212121;
+  color: ${ACCENT_COLOR};
 
   @media (max-width: 767px) {
     display: block;
@@ -188,9 +200,9 @@ const PrimaryButton = styled.a`
   padding: 11px 18px;
   font-size: 0.9rem;
   font-weight: 700;
-  background: #161616;
+  background: ${ACCENT_COLOR};
   color: white;
-  border: 1px solid #161616;
+  border: 1px solid ${ACCENT_COLOR};
 `;
 
 const Hero = styled(Section)`
@@ -241,8 +253,8 @@ const CtaRow = styled.div`
 
 const SecondaryButton = styled(PrimaryButton)`
   background: white;
-  color: #1e1e1e;
-  border-color: #c8c8c8;
+  color: ${ACCENT_COLOR};
+  border-color: ${ACCENT_COLOR};
 `;
 
 const HeroImage = styled.img`
@@ -264,6 +276,7 @@ const SectionHead = styled.div`
 const SectionTitle = styled.h2`
   font-size: clamp(1.5rem, 2.4vw, 2.2rem);
   letter-spacing: -0.02em;
+  color: ${ACCENT_COLOR};
 `;
 
 const SectionDesc = styled.p`
@@ -314,7 +327,9 @@ const Tag = styled.span`
   font-weight: 700;
   border-radius: 99px;
   padding: 6px 10px;
-  background: #ebebeb;
+  color: ${ACCENT_COLOR};
+  background: #d7efe8;
+  border: 1px solid #b6ddd1;
   margin-bottom: 10px;
 `;
 
@@ -339,7 +354,8 @@ const CardButton = styled.a`
   display: inline-flex;
   width: 100%;
   justify-content: center;
-  border: 1px solid #1f1f1f;
+  border: 1px solid ${ACCENT_COLOR};
+  color: ${ACCENT_COLOR};
   border-radius: 11px;
   padding: 10px 14px;
   font-size: 0.9rem;
@@ -372,7 +388,7 @@ const StepCard = styled.article`
 `;
 
 const StepNum = styled.p`
-  color: #787878;
+  color: ${ACCENT_COLOR};
   font-size: 0.8rem;
   margin-bottom: 12px;
   font-weight: 700;
@@ -406,6 +422,7 @@ const FooterGrid = styled(Section)`
 const FooterTitle = styled.p`
   font-weight: 800;
   margin-bottom: 10px;
+  color: ${ACCENT_COLOR};
 `;
 
 const FooterText = styled.p`
@@ -432,7 +449,9 @@ export default function Layout01() {
       <GlobalStyle />
       <Nav>
         <NavInner>
-          <Logo>CarMentor</Logo>
+          <Logo>
+            <LogoImage src={logo} alt="Car Mentor" />
+          </Logo>
           <Links>
             <a href="#stock">Auta od ręki</a>
             <a href="#broker">Auto na zamówienie</a>
