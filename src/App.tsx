@@ -97,7 +97,7 @@ function Home() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/car-mentor">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/agent/:agentId/layout/:layoutId" element={<LayoutView />} />
