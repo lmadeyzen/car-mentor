@@ -1,28 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { CARS_BY_SLUG } from "./cars";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 
 const ACCENT_COLOR = "#00573F";
 const ACCENT_COLOR_DARK = "#33c39b";
-const THEME_STORAGE_KEY = "car-mentor-theme";
-
-const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
-  @import url("https://fonts.cdnfonts.com/css/arboria");
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: "Arboria", Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: ${({ $isDark }) => ($isDark ? "#f0f3f2" : "#161616")};
-    background: ${({ $isDark }) => ($isDark ? "#0f1513" : "#f5f5f5")};
-  }
-  a { text-decoration: none; color: inherit; }
-  img { max-width: 100%; display: block; }
-  :focus-visible {
-    outline: 3px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-    outline-offset: 2px;
-  }
-`;
 
 const Page = styled.div`
   min-height: 100vh;
@@ -356,15 +339,14 @@ const ContactLink = styled.a<{ $isDark: boolean }>`
   font-weight: 700;
 `;
 
-export default function CarModelPage() {
+type CarModelPageProps = {
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
+};
+
+export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPageProps) {
   const { carSlug } = useParams<{ carSlug: string }>();
   const car = useMemo(() => (carSlug ? CARS_BY_SLUG[carSlug] : null), [carSlug]);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark";
-  });
   const [activePhoto, setActivePhoto] = useState(car?.gallery[0] ?? "");
   const [contactCar, setContactCar] = useState<string | null>(null);
   const [showFullEquipment, setShowFullEquipment] = useState(false);
@@ -382,14 +364,9 @@ export default function CarModelPage() {
     return () => window.removeEventListener("keydown", onEscape);
   }, [contactCar]);
 
-  useEffect(() => {
-    window.localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
-
   if (!car) {
     return (
       <Page>
-        <GlobalStyle $isDark={false} />
         <Wrap>
           <p>Nie znaleziono samochodu.</p>
           <p>
@@ -407,10 +384,9 @@ export default function CarModelPage() {
 
   return (
     <Page>
-      <GlobalStyle $isDark={isDarkMode} />
       <SiteNavigation
         isDarkMode={isDarkMode}
-        onToggleTheme={() => setIsDarkMode((prev) => !prev)}
+        onToggleTheme={onToggleTheme}
       />
       <Wrap>
         <BackLink to="/" $isDark={isDarkMode}>

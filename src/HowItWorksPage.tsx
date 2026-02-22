@@ -1,22 +1,9 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 
-const THEME_STORAGE_KEY = "car-mentor-theme";
 const ACCENT_COLOR = "#00573F";
 const ACCENT_COLOR_DARK = "#33c39b";
-
-const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
-  @import url("https://fonts.cdnfonts.com/css/arboria");
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: "Arboria", Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: ${({ $isDark }) => ($isDark ? "#f0f3f2" : "#161616")};
-    background: ${({ $isDark }) => ($isDark ? "#0f1513" : "#f5f5f5")};
-  }
-  a { text-decoration: none; color: inherit; }
-`;
 
 const Page = styled.div`
   min-height: 100vh;
@@ -178,22 +165,17 @@ const CtaLink = styled(Link)<{ $isDark: boolean }>`
   padding: 10px 14px;
 `;
 
-export default function HowItWorksPage() {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark";
-  });
+type HowItWorksPageProps = {
+  isDarkMode: boolean;
+  onToggleTheme: () => void;
+};
 
-  useEffect(() => {
-    window.localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
-
+export default function HowItWorksPage({ isDarkMode, onToggleTheme }: HowItWorksPageProps) {
   return (
     <Page>
-      <GlobalStyle $isDark={isDarkMode} />
       <SiteNavigation
         isDarkMode={isDarkMode}
-        onToggleTheme={() => setIsDarkMode((prev) => !prev)}
+        onToggleTheme={onToggleTheme}
       />
       <Wrap>
         <IntroCard $isDark={isDarkMode}>
