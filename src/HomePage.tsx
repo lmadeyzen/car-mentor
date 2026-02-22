@@ -70,68 +70,6 @@ const Section = styled.section`
   }
 `;
 
-const Nav = styled.nav<{ $isDark: boolean }>`
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: ${({ $isDark }) =>
-    $isDark ? "rgba(16, 24, 21, 0.94)" : "rgba(245, 245, 245, 0.94)"};
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid ${({ $isDark }) => ($isDark ? "#2d3a36" : "#dedede")};
-`;
-
-const NavInner = styled(Section)`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 0;
-`;
-
-const Logo = styled.div`
-  display: inline-flex;
-  align-items: center;
-`;
-
-const LogoImage = styled.img`
-  width: clamp(155px, 13vw, 210px);
-  height: auto;
-`;
-
-const Links = styled.div<{ $isDark: boolean }>`
-  display: flex;
-  gap: 30px;
-  color: ${({ $isDark }) => ($isDark ? "#c5d0cc" : "#3a3a3a")};
-  font-weight: 500;
-
-  a:hover {
-    color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  }
-
-  @media (max-width: 1023px) {
-    gap: 18px;
-    font-size: 0.95rem;
-  }
-
-  @media (max-width: 767px) {
-    display: none;
-  }
-`;
-
-const MobileMenu = styled.button<{ $isDark: boolean }>`
-  display: none;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#375149" : "#cbcbcb")};
-  background: ${({ $isDark }) => ($isDark ? "#18231f" : "white")};
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-
-  @media (max-width: 767px) {
-    display: block;
-  }
-`;
-
 const PrimaryButton = styled.a`
   display: inline-flex;
   align-items: center;
@@ -145,24 +83,10 @@ const PrimaryButton = styled.a`
   border: 1px solid ${ACCENT_COLOR};
 `;
 
-const NavActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const ThemeButton = styled.button<{ $isDark: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  padding: 11px 14px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? "#14211d" : "#eaf6f2")};
-  cursor: pointer;
+const SecondaryButton = styled(PrimaryButton)`
+  background: white;
+  color: ${ACCENT_COLOR};
+  border-color: ${ACCENT_COLOR};
 `;
 
 const Hero = styled(Section)`
@@ -211,12 +135,6 @@ const CtaRow = styled.div`
   flex-wrap: wrap;
 `;
 
-const SecondaryButton = styled(PrimaryButton)`
-  background: white;
-  color: ${ACCENT_COLOR};
-  border-color: ${ACCENT_COLOR};
-`;
-
 const HeroImage = styled.img`
   width: 100%;
   height: 100%;
@@ -246,67 +164,6 @@ const SectionDesc = styled.p<{ $isDark: boolean }>`
 
 const CarsSection = styled(Section)`
   margin-bottom: 78px;
-`;
-
-const CarCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
-  border-radius: 24px;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 22px;
-
-  @media (max-width: 1023px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const CarGallery = styled.div`
-  display: grid;
-  gap: 10px;
-`;
-
-const MainImage = styled.img`
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  border-radius: 16px;
-  border: 1px solid #ced8d4;
-
-  @media (max-width: 767px) {
-    height: 300px;
-  }
-`;
-
-const ThumbGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-
-  @media (max-width: 767px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-`;
-
-const ThumbButton = styled.button<{ $isDark: boolean; $active: boolean }>`
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid
-    ${({ $active, $isDark }) =>
-      $active ? ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR) : "transparent"};
-  background: transparent;
-  cursor: pointer;
-`;
-
-const ThumbImage = styled.img`
-  width: 100%;
-  height: 72px;
-  object-fit: cover;
-`;
-
-const CarBody = styled.div`
-  padding: 4px;
 `;
 
 const SimpleCard = styled.article<{ $isDark: boolean }>`
@@ -376,36 +233,6 @@ const Price = styled.p`
   margin-bottom: 18px;
   font-size: 1.35rem;
   font-weight: 800;
-`;
-
-const SpecsGrid = styled.div<{ $isDark: boolean }>`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-  margin-bottom: 18px;
-
-  @media (max-width: 520px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const SpecItem = styled.div<{ $isDark: boolean }>`
-  border-radius: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#345047" : "#d6dfdb")};
-  background: ${({ $isDark }) => ($isDark ? "#1a2924" : "#f8fbfa")};
-  padding: 10px 12px;
-`;
-
-const SpecLabel = styled.p<{ $isDark: boolean }>`
-  font-size: 0.75rem;
-  color: ${({ $isDark }) => ($isDark ? "#9fb0ab" : "#61716b")};
-  margin-bottom: 3px;
-`;
-
-const SpecValue = styled.p`
-  font-size: 0.93rem;
-  font-weight: 700;
 `;
 
 const CardButton = styled.button<{ $isDark: boolean }>`
@@ -533,46 +360,6 @@ const StepTitle = styled.h3`
 const StepDesc = styled.p<{ $isDark: boolean }>`
   color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
   line-height: 1.55;
-`;
-
-const Footer = styled.footer<{ $isDark: boolean }>`
-  border-top: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d4d4d4")};
-  background: ${({ $isDark }) => ($isDark ? "#131a17" : "#f0f0f0")};
-  padding: 38px 0;
-`;
-
-const FooterGrid = styled(Section)`
-  display: grid;
-  grid-template-columns: 1.25fr 1fr 1fr;
-  gap: 24px;
-
-  @media (max-width: 767px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FooterTitle = styled.p<{ $isDark: boolean }>`
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-`;
-
-const FooterText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#afbab6" : "#595959")};
-  line-height: 1.6;
-`;
-
-const List = styled.ul<{ $isDark: boolean }>`
-  list-style: none;
-  display: grid;
-  gap: 8px;
-  color: ${({ $isDark }) => ($isDark ? "#c2cdc9" : "#3f3f3f")};
-`;
-
-const Copyright = styled.p<{ $isDark: boolean }>`
-  margin-top: 26px;
-  color: ${({ $isDark }) => ($isDark ? "#96a3a0" : "#696969")};
-  font-size: 0.84rem;
 `;
 
 export default function HomePage() {

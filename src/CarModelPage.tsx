@@ -39,60 +39,6 @@ const Wrap = styled.section`
   }
 `;
 
-const Nav = styled.nav<{ $isDark: boolean }>`
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: ${({ $isDark }) =>
-    $isDark ? "rgba(16, 24, 21, 0.94)" : "rgba(245, 245, 245, 0.94)"};
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid ${({ $isDark }) => ($isDark ? "#2d3a36" : "#dedede")};
-`;
-
-const NavInner = styled.section`
-  width: min(1180px, calc(100% - 48px));
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 0;
-
-  @media (max-width: 767px) {
-    width: calc(100% - 28px);
-  }
-`;
-
-const LogoImage = styled.img`
-  width: clamp(155px, 13vw, 210px);
-  height: auto;
-`;
-
-const NavLinks = styled.div<{ $isDark: boolean }>`
-  display: flex;
-  gap: 24px;
-  color: ${({ $isDark }) => ($isDark ? "#c5d0cc" : "#3a3a3a")};
-  font-weight: 500;
-
-  a:hover {
-    color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  }
-
-  @media (max-width: 767px) {
-    display: none;
-  }
-`;
-
-const ThemeButton = styled.button<{ $isDark: boolean }>`
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? "#14211d" : "#eaf6f2")};
-  cursor: pointer;
-`;
-
 const BackLink = styled(Link)<{ $isDark: boolean }>`
   display: inline-flex;
   margin-bottom: 14px;
@@ -408,50 +354,6 @@ const ContactLink = styled.a<{ $isDark: boolean }>`
   background: ${({ $isDark }) => ($isDark ? "#1f332d" : "#eaf6f2")};
   color: ${({ $isDark }) => ($isDark ? "#e8f4ef" : ACCENT_COLOR)};
   font-weight: 700;
-`;
-
-const Footer = styled.footer<{ $isDark: boolean }>`
-  margin-top: 22px;
-  border-top: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d4d4d4")};
-  background: ${({ $isDark }) => ($isDark ? "#131a17" : "#f0f0f0")};
-  padding: 38px 0;
-`;
-
-const FooterGrid = styled.section`
-  width: min(1180px, calc(100% - 48px));
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.25fr 1fr 1fr;
-  gap: 24px;
-
-  @media (max-width: 767px) {
-    width: calc(100% - 28px);
-    grid-template-columns: 1fr;
-  }
-`;
-
-const FooterTitle = styled.p<{ $isDark: boolean }>`
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-`;
-
-const FooterText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#afbab6" : "#595959")};
-  line-height: 1.6;
-`;
-
-const FooterList = styled.ul<{ $isDark: boolean }>`
-  list-style: none;
-  display: grid;
-  gap: 8px;
-  color: ${({ $isDark }) => ($isDark ? "#c2cdc9" : "#3f3f3f")};
-`;
-
-const Copyright = styled.p<{ $isDark: boolean }>`
-  margin-top: 26px;
-  color: ${({ $isDark }) => ($isDark ? "#96a3a0" : "#696969")};
-  font-size: 0.84rem;
 `;
 
 export default function CarModelPage() {
