@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import logo from "./assets/logo.png";
 
@@ -21,62 +22,62 @@ type Step = {
 const CARS: Car[] = [
   {
     id: 1,
-    img: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&h=400&fit=crop",
-    brand: "BMW",
-    model: "X3 xDrive30d",
-    year: 2023,
-    mileage: "18 000 km",
-    price: "219 900 zł",
+    img: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&h=600&fit=crop&q=80",
+    brand: "Toyota",
+    model: "Corolla 1.8 Hybrid",
+    year: 2020,
+    mileage: "74 000 km",
+    price: "89 900 zł",
     tag: "Od ręki",
   },
   {
     id: 2,
-    img: "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600&h=400&fit=crop",
-    brand: "Mercedes-Benz",
-    model: "GLC 300 4MATIC",
-    year: 2022,
-    mileage: "32 000 km",
-    price: "249 000 zł",
+    img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop&q=80",
+    brand: "Skoda",
+    model: "Octavia 1.5 TSI",
+    year: 2019,
+    mileage: "92 000 km",
+    price: "79 900 zł",
     tag: "Sprawdzone",
   },
   {
     id: 3,
-    img: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=600&h=400&fit=crop",
-    brand: "Volvo",
-    model: "XC60 T6 Recharge",
-    year: 2023,
-    mileage: "12 500 km",
-    price: "279 900 zł",
+    img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&h=600&fit=crop&q=80",
+    brand: "Volkswagen",
+    model: "Golf VIII 1.5 eTSI",
+    year: 2021,
+    mileage: "61 000 km",
+    price: "99 900 zł",
     tag: "Od ręki",
   },
   {
     id: 4,
-    img: "https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=600&h=400&fit=crop",
-    brand: "Audi",
-    model: "Q5 45 TFSI quattro",
-    year: 2022,
-    mileage: "41 000 km",
-    price: "199 900 zł",
+    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&q=80",
+    brand: "Hyundai",
+    model: "i30 Wagon 1.5 DPI",
+    year: 2020,
+    mileage: "83 000 km",
+    price: "74 900 zł",
     tag: "Sprawdzone",
   },
   {
     id: 5,
-    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&h=400&fit=crop",
-    brand: "Porsche",
-    model: "Cayenne E-Hybrid",
-    year: 2023,
-    mileage: "8 200 km",
-    price: "389 000 zł",
+    img: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop&q=80",
+    brand: "Kia",
+    model: "Ceed 1.5 T-GDI",
+    year: 2021,
+    mileage: "57 000 km",
+    price: "94 900 zł",
     tag: "Od ręki",
   },
   {
     id: 6,
-    img: "https://images.unsplash.com/photo-1542362567-b07e54358753?w=600&h=400&fit=crop",
-    brand: "Toyota",
-    model: "RAV4 Hybrid AWD",
-    year: 2023,
-    mileage: "15 800 km",
-    price: "169 900 zł",
+    img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&h=600&fit=crop&q=80",
+    brand: "Opel",
+    model: "Astra 1.2 Turbo",
+    year: 2019,
+    mileage: "98 000 km",
+    price: "72 900 zł",
     tag: "Sprawdzone",
   },
 ];
@@ -105,14 +106,23 @@ const STEPS: Step[] = [
 ];
 
 const ACCENT_COLOR = "#00573F";
+const ACCENT_COLOR_DARK = "#33c39b";
 
-const GlobalStyle = createGlobalStyle`
+const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
   @import url("https://fonts.cdnfonts.com/css/arboria");
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: "Arboria", Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #161616;
-    background: #f5f5f5;
+    color: ${({ $isDark }) => ($isDark ? "#f0f3f2" : "#161616")};
+    background: ${({ $isDark }) => ($isDark ? "#0f1513" : "#f5f5f5")};
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  button, a {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  :focus-visible {
+    outline: 3px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+    outline-offset: 2px;
   }
   a { text-decoration: none; color: inherit; }
   img { max-width: 100%; display: block; }
@@ -131,13 +141,14 @@ const Section = styled.section`
   }
 `;
 
-const Nav = styled.nav`
+const Nav = styled.nav<{ $isDark: boolean }>`
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(245, 245, 245, 0.94);
+  background: ${({ $isDark }) =>
+    $isDark ? "rgba(16, 24, 21, 0.94)" : "rgba(245, 245, 245, 0.94)"};
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid ${({ $isDark }) => ($isDark ? "#2d3a36" : "#dedede")};
 `;
 
 const NavInner = styled(Section)`
@@ -157,14 +168,14 @@ const LogoImage = styled.img`
   height: auto;
 `;
 
-const Links = styled.div`
+const Links = styled.div<{ $isDark: boolean }>`
   display: flex;
   gap: 30px;
-  color: #3a3a3a;
+  color: ${({ $isDark }) => ($isDark ? "#c5d0cc" : "#3a3a3a")};
   font-weight: 500;
 
   a:hover {
-    color: ${ACCENT_COLOR};
+    color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
   }
 
   @media (max-width: 1023px) {
@@ -177,15 +188,15 @@ const Links = styled.div`
   }
 `;
 
-const MobileMenu = styled.button`
+const MobileMenu = styled.button<{ $isDark: boolean }>`
   display: none;
-  border: 1px solid #cbcbcb;
-  background: white;
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#375149" : "#cbcbcb")};
+  background: ${({ $isDark }) => ($isDark ? "#18231f" : "white")};
   border-radius: 10px;
   padding: 8px 12px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: ${ACCENT_COLOR};
+  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
 
   @media (max-width: 767px) {
     display: block;
@@ -205,6 +216,26 @@ const PrimaryButton = styled.a`
   border: 1px solid ${ACCENT_COLOR};
 `;
 
+const NavActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const ThemeButton = styled.button<{ $isDark: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  background: ${({ $isDark }) => ($isDark ? "#14211d" : "#eaf6f2")};
+  cursor: pointer;
+`;
+
 const Hero = styled(Section)`
   margin-top: 50px;
   margin-bottom: 70px;
@@ -218,9 +249,9 @@ const Hero = styled(Section)`
   }
 `;
 
-const HeroCard = styled.div`
-  background: white;
-  border: 1px solid #d8d8d8;
+const HeroCard = styled.div<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d8d8d8")};
   border-radius: 28px;
   padding: 42px;
 
@@ -237,8 +268,8 @@ const HeroTitle = styled.h1`
   margin-bottom: 16px;
 `;
 
-const HeroText = styled.p`
-  color: #515151;
+const HeroText = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#c0cbc8" : "#515151")};
   font-size: 1.06rem;
   line-height: 1.6;
   max-width: 56ch;
@@ -273,14 +304,14 @@ const SectionHead = styled.div`
   margin-bottom: 24px;
 `;
 
-const SectionTitle = styled.h2`
+const SectionTitle = styled.h2<{ $isDark: boolean }>`
   font-size: clamp(1.5rem, 2.4vw, 2.2rem);
   letter-spacing: -0.02em;
-  color: ${ACCENT_COLOR};
+  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
 `;
 
-const SectionDesc = styled.p`
-  color: #5e5e5e;
+const SectionDesc = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5e5e5e")};
   max-width: 48ch;
 `;
 
@@ -302,9 +333,9 @@ const CarsGrid = styled.div`
   }
 `;
 
-const CarCard = styled.article`
-  background: white;
-  border: 1px solid #dcdcdc;
+const CarCard = styled.article<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
   border-radius: 20px;
   overflow: hidden;
   display: flex;
@@ -338,8 +369,8 @@ const CarName = styled.h3`
   margin-bottom: 10px;
 `;
 
-const Meta = styled.p`
-  color: #666;
+const Meta = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#aab5b1" : "#666")};
   font-size: 0.88rem;
 `;
 
@@ -350,12 +381,13 @@ const Price = styled.p`
   font-weight: 800;
 `;
 
-const CardButton = styled.a`
+const CardButton = styled.a<{ $isDark: boolean }>`
   display: inline-flex;
   width: 100%;
   justify-content: center;
-  border: 1px solid ${ACCENT_COLOR};
-  color: ${ACCENT_COLOR};
+  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  color: ${({ $isDark }) => ($isDark ? "#0c1613" : ACCENT_COLOR)};
+  background: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : "transparent")};
   border-radius: 11px;
   padding: 10px 14px;
   font-size: 0.9rem;
@@ -380,15 +412,15 @@ const StepsGrid = styled.div`
   }
 `;
 
-const StepCard = styled.article`
-  background: white;
-  border: 1px solid #dadada;
+const StepCard = styled.article<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
   border-radius: 16px;
   padding: 22px;
 `;
 
-const StepNum = styled.p`
-  color: ${ACCENT_COLOR};
+const StepNum = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
   font-size: 0.8rem;
   margin-bottom: 12px;
   font-weight: 700;
@@ -398,14 +430,14 @@ const StepTitle = styled.h3`
   margin-bottom: 8px;
 `;
 
-const StepDesc = styled.p`
-  color: #5b5b5b;
+const StepDesc = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
   line-height: 1.55;
 `;
 
-const Footer = styled.footer`
-  border-top: 1px solid #d4d4d4;
-  background: #f0f0f0;
+const Footer = styled.footer<{ $isDark: boolean }>`
+  border-top: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d4d4d4")};
+  background: ${({ $isDark }) => ($isDark ? "#131a17" : "#f0f0f0")};
   padding: 38px 0;
 `;
 
@@ -419,54 +451,65 @@ const FooterGrid = styled(Section)`
   }
 `;
 
-const FooterTitle = styled.p`
+const FooterTitle = styled.p<{ $isDark: boolean }>`
   font-weight: 800;
   margin-bottom: 10px;
-  color: ${ACCENT_COLOR};
+  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
 `;
 
-const FooterText = styled.p`
-  color: #595959;
+const FooterText = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#afbab6" : "#595959")};
   line-height: 1.6;
 `;
 
-const List = styled.ul`
+const List = styled.ul<{ $isDark: boolean }>`
   list-style: none;
   display: grid;
   gap: 8px;
-  color: #3f3f3f;
+  color: ${({ $isDark }) => ($isDark ? "#c2cdc9" : "#3f3f3f")};
 `;
 
-const Copyright = styled.p`
+const Copyright = styled.p<{ $isDark: boolean }>`
   margin-top: 26px;
-  color: #696969;
+  color: ${({ $isDark }) => ($isDark ? "#96a3a0" : "#696969")};
   font-size: 0.84rem;
 `;
 
 export default function Layout01() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
   return (
     <Page>
-      <GlobalStyle />
-      <Nav>
+      <GlobalStyle $isDark={isDarkMode} />
+      <Nav $isDark={isDarkMode}>
         <NavInner>
           <Logo>
             <LogoImage src={logo} alt="Car Mentor" />
           </Logo>
-          <Links>
+          <Links $isDark={isDarkMode}>
             <a href="#stock">Auta od ręki</a>
             <a href="#broker">Auto na zamówienie</a>
             <a href="#how">Jak działamy</a>
             <a href="#contact">Kontakt</a>
           </Links>
-          <PrimaryButton href="#contact">Umów rozmowę</PrimaryButton>
-          <MobileMenu>Menu</MobileMenu>
+          <NavActions>
+            <ThemeButton
+              type="button"
+              $isDark={isDarkMode}
+              onClick={() => setIsDarkMode((prev) => !prev)}
+            >
+              {isDarkMode ? "Light mode" : "Dark mode"}
+            </ThemeButton>
+            <PrimaryButton href="#contact">Umów rozmowę</PrimaryButton>
+            <MobileMenu $isDark={isDarkMode}>Menu</MobileMenu>
+          </NavActions>
         </NavInner>
       </Nav>
 
       <Hero>
-        <HeroCard>
+        <HeroCard $isDark={isDarkMode}>
           <HeroTitle>Stoimy po stronie kupującego, nie sprzedającego.</HeroTitle>
-          <HeroText>
+          <HeroText $isDark={isDarkMode}>
             CarMentor łączy ofertę sprawdzonych aut od ręki z usługą wyszukania auta
             na zamówienie. Transparentnie pokazujemy fakty, odradzamy złe wybory i
             prowadzimy cały proces zakupu.
@@ -484,26 +527,28 @@ export default function Layout01() {
 
       <CarsSection id="stock">
         <SectionHead>
-          <SectionTitle>Top Picks</SectionTitle>
-          <SectionDesc>
+          <SectionTitle $isDark={isDarkMode}>Top Picks</SectionTitle>
+          <SectionDesc $isDark={isDarkMode}>
             Wyselekcjonowane samochody po naszej weryfikacji. Każdy z pełną historią i
             jasną rekomendacją.
           </SectionDesc>
         </SectionHead>
         <CarsGrid>
           {CARS.map((car) => (
-            <CarCard key={car.id}>
+            <CarCard key={car.id} $isDark={isDarkMode}>
               <CarImage src={car.img} alt={`${car.brand} ${car.model}`} />
               <CarBody>
                 <Tag>{car.tag}</Tag>
                 <CarName>
                   {car.brand} {car.model}
                 </CarName>
-                <Meta>
+                <Meta $isDark={isDarkMode}>
                   {car.year} • {car.mileage}
                 </Meta>
                 <Price>{car.price}</Price>
-                <CardButton href="#contact">Zapytaj o to auto</CardButton>
+                <CardButton $isDark={isDarkMode} href="#contact">
+                  Zapytaj o to auto
+                </CardButton>
               </CarBody>
             </CarCard>
           ))}
@@ -513,36 +558,38 @@ export default function Layout01() {
       <div id="broker" />
       <StepsSection id="how">
         <SectionHead>
-          <SectionTitle>Jak działamy</SectionTitle>
-          <SectionDesc>
+          <SectionTitle $isDark={isDarkMode}>Jak działamy</SectionTitle>
+          <SectionDesc $isDark={isDarkMode}>
             Jeden proces niezależnie od tego, czy kupujesz auto ze stocku, czy szukasz
             modelu na zamówienie.
           </SectionDesc>
         </SectionHead>
         <StepsGrid>
           {STEPS.map((step) => (
-            <StepCard key={step.num}>
-              <StepNum>{step.num}</StepNum>
+            <StepCard key={step.num} $isDark={isDarkMode}>
+              <StepNum $isDark={isDarkMode}>{step.num}</StepNum>
               <StepTitle>{step.title}</StepTitle>
-              <StepDesc>{step.desc}</StepDesc>
+              <StepDesc $isDark={isDarkMode}>{step.desc}</StepDesc>
             </StepCard>
           ))}
         </StepsGrid>
       </StepsSection>
 
-      <Footer id="contact">
+      <Footer id="contact" $isDark={isDarkMode}>
         <FooterGrid>
           <div>
-            <FooterTitle>CarMentor</FooterTitle>
-            <FooterText>
+            <FooterTitle $isDark={isDarkMode}>CarMentor</FooterTitle>
+            <FooterText $isDark={isDarkMode}>
               Butikowe doradztwo zakupowe dla osób, które chcą kupić auto spokojnie i
               świadomie.
             </FooterText>
-            <Copyright>© 2026 CarMentor. Wszelkie prawa zastrzeżone.</Copyright>
+            <Copyright $isDark={isDarkMode}>
+              © 2026 CarMentor. Wszelkie prawa zastrzeżone.
+            </Copyright>
           </div>
           <div>
-            <FooterTitle>Sekcje</FooterTitle>
-            <List>
+            <FooterTitle $isDark={isDarkMode}>Sekcje</FooterTitle>
+            <List $isDark={isDarkMode}>
               <li>
                 <a href="#stock">Auta od ręki</a>
               </li>
@@ -558,8 +605,8 @@ export default function Layout01() {
             </List>
           </div>
           <div>
-            <FooterTitle>Kontakt</FooterTitle>
-            <List>
+            <FooterTitle $isDark={isDarkMode}>Kontakt</FooterTitle>
+            <List $isDark={isDarkMode}>
               <li>+48 600 123 456</li>
               <li>kontakt@carmentor.pl</li>
               <li>WhatsApp: +48 600 123 456</li>
