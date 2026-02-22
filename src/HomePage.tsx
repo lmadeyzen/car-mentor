@@ -1,87 +1,14 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
-import logo from "./assets/logo.png";
-import vwImage from "./assets/vw.png";
-
-type Car = {
-  id: number;
-  img: string;
-  brand: string;
-  model: string;
-  year: number;
-  mileage: string;
-  price: string;
-  tag: "Od ręki" | "Sprawdzone";
-};
+import { VW_TIGUAN } from "./cars";
+import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 
 type Step = {
   num: string;
   title: string;
   desc: string;
 };
-
-const CARS: Car[] = [
-  {
-    id: 1,
-    img: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&h=600&fit=crop&q=80",
-    brand: "Toyota",
-    model: "Corolla 1.8 Hybrid",
-    year: 2020,
-    mileage: "74 000 km",
-    price: "89 900 zł",
-    tag: "Od ręki",
-  },
-  {
-    id: 2,
-    img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop&q=80",
-    brand: "Skoda",
-    model: "Octavia 1.5 TSI",
-    year: 2019,
-    mileage: "92 000 km",
-    price: "79 900 zł",
-    tag: "Sprawdzone",
-  },
-  {
-    id: 3,
-    img: vwImage,
-    brand: "Volkswagen",
-    model: "Tiguan 2.0 TDI 4Motion R-Line",
-    year: 2017,
-    mileage: "1 968 cm3 • 500 Nm",
-    price: "240 KM • DSG • Zapytaj o cenę",
-    tag: "Od ręki",
-  },
-  {
-    id: 4,
-    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&q=80",
-    brand: "Hyundai",
-    model: "i30 Wagon 1.5 DPI",
-    year: 2020,
-    mileage: "83 000 km",
-    price: "74 900 zł",
-    tag: "Sprawdzone",
-  },
-  {
-    id: 5,
-    img: "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&h=600&fit=crop&q=80",
-    brand: "Kia",
-    model: "Ceed 1.5 T-GDI",
-    year: 2021,
-    mileage: "57 000 km",
-    price: "94 900 zł",
-    tag: "Od ręki",
-  },
-  {
-    id: 6,
-    img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&h=600&fit=crop&q=80",
-    brand: "Opel",
-    model: "Astra 1.2 Turbo",
-    year: 2019,
-    mileage: "98 000 km",
-    price: "72 900 zł",
-    tag: "Sprawdzone",
-  },
-];
 
 const STEPS: Step[] = [
   {
@@ -108,6 +35,7 @@ const STEPS: Step[] = [
 
 const ACCENT_COLOR = "#00573F";
 const ACCENT_COLOR_DARK = "#33c39b";
+const THEME_STORAGE_KEY = "car-mentor-theme";
 
 const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
   @import url("https://fonts.cdnfonts.com/css/arboria");
@@ -320,37 +248,105 @@ const CarsSection = styled(Section)`
   margin-bottom: 78px;
 `;
 
-const CarsGrid = styled.div`
+const CarCard = styled.article<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
+  border-radius: 24px;
+  padding: 20px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 22px;
 
   @media (max-width: 1023px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (max-width: 767px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const CarCard = styled.article<{ $isDark: boolean }>`
+const CarGallery = styled.div`
+  display: grid;
+  gap: 10px;
+`;
+
+const MainImage = styled.img`
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid #ced8d4;
+
+  @media (max-width: 767px) {
+    height: 300px;
+  }
+`;
+
+const ThumbGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+`;
+
+const ThumbButton = styled.button<{ $isDark: boolean; $active: boolean }>`
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid
+    ${({ $active, $isDark }) =>
+      $active ? ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR) : "transparent"};
+  background: transparent;
+  cursor: pointer;
+`;
+
+const ThumbImage = styled.img`
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+`;
+
+const CarBody = styled.div`
+  padding: 4px;
+`;
+
+const SimpleCard = styled.article<{ $isDark: boolean }>`
   background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
   border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
   border-radius: 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-width: 460px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+    border-color: ${({ $isDark }) => ($isDark ? "#3d5a52" : "#b9cdc6")};
+  }
+
+  &:hover img {
+    transform: scale(1.03);
+  }
 `;
 
-const CarImage = styled.img`
+const SimpleImage = styled.img`
   width: 100%;
-  height: 180px;
+  height: 230px;
   object-fit: cover;
+  transition: transform 0.28s ease;
 `;
 
-const CarBody = styled.div`
+const SimpleBody = styled.div`
   padding: 16px;
+`;
+
+const CarDescription = styled.p<{ $isDark: boolean }>`
+  margin-top: 10px;
+  color: ${({ $isDark }) => ($isDark ? "#b8c5c1" : "#4f5d58")};
+  line-height: 1.5;
+  font-size: 0.95rem;
 `;
 
 const Tag = styled.span`
@@ -366,20 +362,50 @@ const Tag = styled.span`
 `;
 
 const CarName = styled.h3`
-  font-size: 1.07rem;
+  font-size: clamp(1.5rem, 2vw, 1.85rem);
   margin-bottom: 10px;
 `;
 
 const Meta = styled.p<{ $isDark: boolean }>`
   color: ${({ $isDark }) => ($isDark ? "#aab5b1" : "#666")};
-  font-size: 0.88rem;
+  font-size: 0.96rem;
 `;
 
 const Price = styled.p`
-  margin-top: 12px;
-  margin-bottom: 16px;
-  font-size: 1.17rem;
+  margin-top: 14px;
+  margin-bottom: 18px;
+  font-size: 1.35rem;
   font-weight: 800;
+`;
+
+const SpecsGrid = styled.div<{ $isDark: boolean }>`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 18px;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const SpecItem = styled.div<{ $isDark: boolean }>`
+  border-radius: 12px;
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#345047" : "#d6dfdb")};
+  background: ${({ $isDark }) => ($isDark ? "#1a2924" : "#f8fbfa")};
+  padding: 10px 12px;
+`;
+
+const SpecLabel = styled.p<{ $isDark: boolean }>`
+  font-size: 0.75rem;
+  color: ${({ $isDark }) => ($isDark ? "#9fb0ab" : "#61716b")};
+  margin-bottom: 3px;
+`;
+
+const SpecValue = styled.p`
+  font-size: 0.93rem;
+  font-weight: 700;
 `;
 
 const CardButton = styled.button<{ $isDark: boolean }>`
@@ -549,8 +575,14 @@ const Copyright = styled.p<{ $isDark: boolean }>`
   font-size: 0.84rem;
 `;
 
-export default function Layout01() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+export default function HomePage() {
+  const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark";
+  });
   const [contactCar, setContactCar] = useState<string | null>(null);
 
   useEffect(() => {
@@ -568,6 +600,10 @@ export default function Layout01() {
     return () => window.removeEventListener("keydown", onEscape);
   }, [contactCar]);
 
+  useEffect(() => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
   const emailSubject = contactCar
     ? encodeURIComponent(`Zapytanie o auto: ${contactCar}`)
     : encodeURIComponent("Zapytanie o auto");
@@ -575,85 +611,73 @@ export default function Layout01() {
   return (
     <Page>
       <GlobalStyle $isDark={isDarkMode} />
-      <Nav $isDark={isDarkMode}>
-        <NavInner>
-          <Logo>
-            <LogoImage src={logo} alt="Car Mentor" />
-          </Logo>
-          <Links $isDark={isDarkMode}>
-            <a href="#stock">Auta od ręki</a>
-            <a href="#broker">Auto na zamówienie</a>
-            <a href="#how">Jak działamy</a>
-            <a href="#contact">Kontakt</a>
-          </Links>
-          <NavActions>
-            <ThemeButton
-              type="button"
-              $isDark={isDarkMode}
-              onClick={() => setIsDarkMode((prev) => !prev)}
-            >
-              {isDarkMode ? "Light mode" : "Dark mode"}
-            </ThemeButton>
-            <PrimaryButton href="#contact">Umów rozmowę</PrimaryButton>
-            <MobileMenu $isDark={isDarkMode}>Menu</MobileMenu>
-          </NavActions>
-        </NavInner>
-      </Nav>
+      <SiteNavigation
+        isDarkMode={isDarkMode}
+        onToggleTheme={() => setIsDarkMode((prev) => !prev)}
+      />
 
       <Hero>
         <HeroCard $isDark={isDarkMode}>
-          <HeroTitle>Stoimy po stronie kupującego, nie sprzedającego.</HeroTitle>
+          <HeroTitle>Profesjonalne wsparcie przy zakupie auta.</HeroTitle>
           <HeroText $isDark={isDarkMode}>
-            CarMentor łączy ofertę sprawdzonych aut od ręki z usługą wyszukania auta
-            na zamówienie. Transparentnie pokazujemy fakty, odradzamy złe wybory i
-            prowadzimy cały proces zakupu.
+            Auta od ręki, komis i auta na zamówienie. Jasne zasady, rzetelna
+            weryfikacja, bez niespodzianek.
           </HeroText>
           <CtaRow>
-            <PrimaryButton href="#stock">Zobacz auta od ręki</PrimaryButton>
-            <SecondaryButton href="#broker">Znajdź mi auto</SecondaryButton>
+            <PrimaryButton href="#stock">Zobacz ofertę</PrimaryButton>
+            <SecondaryButton as={Link} to={`/samochod/${VW_TIGUAN.slug}`}>
+              Zobacz samochód
+            </SecondaryButton>
           </CtaRow>
         </HeroCard>
-        <HeroImage
-          src="https://images.unsplash.com/photo-1502877338535-766e1452684a?w=900&h=700&fit=crop"
-          alt="Nowoczesny samochód"
-        />
+        <HeroImage src={VW_TIGUAN.gallery[1]} alt="Volkswagen Tiguan" />
       </Hero>
 
       <CarsSection id="stock">
         <SectionHead>
-          <SectionTitle $isDark={isDarkMode}>Top Picks</SectionTitle>
+          <SectionTitle $isDark={isDarkMode}>Oferta na dziś</SectionTitle>
           <SectionDesc $isDark={isDarkMode}>
-            Wyselekcjonowane samochody po naszej weryfikacji. Każdy z pełną historią i
-            jasną rekomendacją.
+            Sprawdzone auta gotowe do rozmowy. Każde ogłoszenie prowadzi do osobnej karty
+            pojazdu ze zdjęciami i pełnym opisem.
           </SectionDesc>
         </SectionHead>
-        <CarsGrid>
-          {CARS.map((car) => (
-            <CarCard key={car.id} $isDark={isDarkMode}>
-              <CarImage src={car.img} alt={`${car.brand} ${car.model}`} />
-              <CarBody>
-                <Tag>{car.tag}</Tag>
-                <CarName>
-                  {car.brand} {car.model}
-                </CarName>
-                <Meta $isDark={isDarkMode}>
-                  {car.year} • {car.mileage}
-                </Meta>
-                <Price>{car.price}</Price>
-                <CardButton
-                  type="button"
-                  $isDark={isDarkMode}
-                  onClick={() => setContactCar(`${car.brand} ${car.model}`)}
-                >
-                  Zapytaj o to auto
-                </CardButton>
-              </CarBody>
-            </CarCard>
-          ))}
-        </CarsGrid>
+        <SimpleCard
+          $isDark={isDarkMode}
+          role="link"
+          tabIndex={0}
+          onClick={() => navigate(`/samochod/${VW_TIGUAN.slug}`)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              navigate(`/samochod/${VW_TIGUAN.slug}`);
+            }
+          }}
+          aria-label={`Przejdz do karty auta ${VW_TIGUAN.brand} ${VW_TIGUAN.model}`}
+        >
+          <SimpleImage src={VW_TIGUAN.gallery[0]} alt={`${VW_TIGUAN.brand} ${VW_TIGUAN.model}`} />
+          <SimpleBody>
+            <Tag>{VW_TIGUAN.tag}</Tag>
+            <CarName>
+              {VW_TIGUAN.brand} {VW_TIGUAN.model}
+            </CarName>
+            <Meta $isDark={isDarkMode}>
+              {VW_TIGUAN.year} • {VW_TIGUAN.engine} • {VW_TIGUAN.power}
+            </Meta>
+            <CarDescription $isDark={isDarkMode}>{VW_TIGUAN.description}</CarDescription>
+            <Price>{VW_TIGUAN.price}</Price>
+            <CardButton
+              type="button"
+              $isDark={isDarkMode}
+              onClick={(event) => {
+                event.stopPropagation();
+                setContactCar(`${VW_TIGUAN.brand} ${VW_TIGUAN.model}`);
+              }}
+            >
+              Zapytaj o to auto
+            </CardButton>
+          </SimpleBody>
+        </SimpleCard>
       </CarsSection>
-
-      <div id="broker" />
       <StepsSection id="how">
         <SectionHead>
           <SectionTitle $isDark={isDarkMode}>Jak działamy</SectionTitle>
@@ -673,45 +697,7 @@ export default function Layout01() {
         </StepsGrid>
       </StepsSection>
 
-      <Footer id="contact" $isDark={isDarkMode}>
-        <FooterGrid>
-          <div>
-            <FooterTitle $isDark={isDarkMode}>CarMentor</FooterTitle>
-            <FooterText $isDark={isDarkMode}>
-              Butikowe doradztwo zakupowe dla osób, które chcą kupić auto spokojnie i
-              świadomie.
-            </FooterText>
-            <Copyright $isDark={isDarkMode}>
-              © 2026 CarMentor. Wszelkie prawa zastrzeżone.
-            </Copyright>
-          </div>
-          <div>
-            <FooterTitle $isDark={isDarkMode}>Sekcje</FooterTitle>
-            <List $isDark={isDarkMode}>
-              <li>
-                <a href="#stock">Auta od ręki</a>
-              </li>
-              <li>
-                <a href="#broker">Auto na zamówienie</a>
-              </li>
-              <li>
-                <a href="#how">Jak działamy</a>
-              </li>
-              <li>
-                <a href="#contact">Kontakt</a>
-              </li>
-            </List>
-          </div>
-          <div>
-            <FooterTitle $isDark={isDarkMode}>Kontakt</FooterTitle>
-            <List $isDark={isDarkMode}>
-              <li>+48 600 123 456</li>
-              <li>kontakt@carmentor.pl</li>
-              <li>WhatsApp: +48 600 123 456</li>
-            </List>
-          </div>
-        </FooterGrid>
-      </Footer>
+      <SiteFooter isDarkMode={isDarkMode} />
       {contactCar ? (
         <ModalOverlay $isDark={isDarkMode} onClick={() => setContactCar(null)}>
           <ModalCard
