@@ -591,7 +591,7 @@ const StepsGrid = styled.div`
 `;
 
 const StepCard = styled.div`
-  background: ${(props) => {
+  background: ${() => {
     const colors = ["#ffff00", "#ff4444", "#00ff88", "#ffffff"];
     return colors[Math.floor(Math.random() * colors.length)];
   }};
@@ -833,7 +833,7 @@ export default function Layout04() {
             />
           </SectionHeader>
           <StepsGrid>
-            {STEPS.map((step, index) => (
+            {STEPS.map((step) => (
               <StepCard key={step.num}>
                 <StepNumber>{step.num}</StepNumber>
                 <StepTitle>{step.title}</StepTitle>
