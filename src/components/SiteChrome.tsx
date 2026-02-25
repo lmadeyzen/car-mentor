@@ -29,8 +29,17 @@ const NavInner = styled.section`
 `;
 
 const LogoImage = styled.img`
-  width: clamp(155px, 13vw, 210px);
+  display: block;
+  width: 210px;
   height: auto;
+  
+  @media (max-width: 1400px) {
+    width: 180px;
+  }
+  
+  @media (max-width: 900px) {
+    width: 155px;
+  }
 `;
 
 const NavLinks = styled.div<{ $isDark: boolean }>`
@@ -187,9 +196,9 @@ export function SiteFooter({ isDarkMode }: Pick<ChromeProps, "isDarkMode">) {
         <div>
           <FooterTitle $isDark={isDarkMode}>Kontakt</FooterTitle>
           <FooterList $isDark={isDarkMode}>
-            <li>+48 600 123 456</li>
+            <li>+48 660 488 900</li>
             <li>kontakt@carmentor.pl</li>
-            <li>WhatsApp: +48 600 123 456</li>
+            <li>WhatsApp: +48 660 488 900</li>
           </FooterList>
         </div>
       </FooterGrid>

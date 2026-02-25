@@ -14,7 +14,7 @@ const STEPS: Step[] = [
   {
     num: "01",
     title: "Wyślij zapytanie",
-    desc: "Powiedz nam, jakiego auta szukasz — lub wklej link z ogłoszenia.",
+    desc: "Powiedz nam, jakiego auta szukasz - lub wklej link z ogłoszenia.",
   },
   {
     num: "02",
@@ -30,6 +30,40 @@ const STEPS: Step[] = [
     num: "04",
     title: "Zakup",
     desc: "Pomagamy przy umowie, finansowaniu i odbiorze auta.",
+  },
+];
+
+type Service = {
+  title: string;
+  desc: string;
+  cta: string;
+  to: string;
+};
+
+const SERVICES: Service[] = [
+  {
+    title: "Auta używane od ręki",
+    desc: "Sprawdzone samochody dostępne od razu. Transparentnie pokazujemy stan i historię oraz prowadzimy Cię przez formalności. Pomagamy również w finansowaniu (kredyt/leasing).",
+    cta: "Poznaj proces zakupu",
+    to: "/jak-dzialamy",
+  },
+  {
+    title: "Wyszukanie auta na zamówienie",
+    desc: "Szukamy auta pod Twoje wymagania i budżet. Weryfikujemy egzemplarz, omawiamy ryzyka i pomagamy w negocjacjach oraz zakupie. Wsparcie w finansowaniu (kredyt/leasing) w pakiecie.",
+    cta: "Umów konsultację",
+    to: "/kontakt",
+  },
+  {
+    title: "Komis – sprzedaż Twojego samochodu",
+    desc: "Zajmujemy się sprzedażą Twojego samochodu od A do Z: oferta, ogłoszenia, prezentacje i negocjacje. Ułatwiamy transakcję także przez pomoc kupującym w finansowaniu.",
+    cta: "Oddaj auto w komis",
+    to: "/kontakt",
+  },
+  {
+    title: "Broker aut nowych",
+    desc: "Pomagamy w zakupie nowych aut marek wolumenowych. Negocjujemy warunki i przeprowadzamy Cię przez cały proces zamówienia.",
+    cta: "Dowiedz się więcej",
+    to: "/kontakt",
   },
 ];
 
@@ -119,7 +153,13 @@ const HeroImage = styled.img`
   height: 100%;
   object-fit: cover;
   border-radius: 28px;
-  min-height: 320px;
+
+  @media (max-width: 1023px) {
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-height: 350px;
+    border-radius: 20px;
+  }
 `;
 
 const SectionHead = styled.div`
@@ -128,6 +168,12 @@ const SectionHead = styled.div`
   align-items: end;
   gap: 20px;
   margin-bottom: 24px;
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 `;
 
 const SectionTitle = styled.h2<{ $isDark: boolean }>`
@@ -219,7 +265,8 @@ const CardButton = styled.button<{ $isDark: boolean }>`
   width: 100%;
   justify-content: center;
   align-items: center;
-  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  border: 1px solid
+    ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
   color: ${({ $isDark }) => ($isDark ? "#0c1613" : ACCENT_COLOR)};
   background: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : "transparent")};
   border-radius: 11px;
@@ -236,7 +283,8 @@ const ModalOverlay = styled.div<{ $isDark: boolean }>`
   display: grid;
   place-items: center;
   padding: 20px;
-  background: ${({ $isDark }) => ($isDark ? "rgba(6, 10, 9, 0.74)" : "rgba(0, 0, 0, 0.45)")};
+  background: ${({ $isDark }) =>
+    $isDark ? "rgba(6, 10, 9, 0.74)" : "rgba(0, 0, 0, 0.45)"};
 `;
 
 const ModalCard = styled.div<{ $isDark: boolean }>`
@@ -294,10 +342,52 @@ const ContactLink = styled.a<{ $isDark: boolean }>`
   justify-content: center;
   min-height: 48px;
   border-radius: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  border: 1px solid
+    ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
   background: ${({ $isDark }) => ($isDark ? "#1f332d" : "#eaf6f2")};
   color: ${({ $isDark }) => ($isDark ? "#e8f4ef" : ACCENT_COLOR)};
   font-weight: 700;
+`;
+
+const ServicesSection = styled(Section)`
+  margin-bottom: 78px;
+`;
+
+const ServicesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ServiceCard = styled.article<{ $isDark: boolean }>`
+  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ServiceTitle = styled.h3`
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+`;
+
+const ServiceText = styled.p<{ $isDark: boolean }>`
+  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
+  line-height: 1.55;
+  flex: 1;
+  margin-bottom: 16px;
+`;
+
+const ServiceLink = styled(Link)<{ $isDark: boolean }>`
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
 `;
 
 const StepsSection = styled(Section)`
@@ -371,10 +461,7 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
 
   return (
     <Page>
-      <SiteNavigation
-        isDarkMode={isDarkMode}
-        onToggleTheme={onToggleTheme}
-      />
+      <SiteNavigation isDarkMode={isDarkMode} onToggleTheme={onToggleTheme} />
 
       <Hero>
         <HeroCard $isDark={isDarkMode}>
@@ -393,12 +480,29 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
         <HeroImage src={VW_TIGUAN.gallery[1]} alt="Volkswagen Tiguan" />
       </Hero>
 
+      <ServicesSection id="services">
+        <SectionHead>
+          <SectionTitle $isDark={isDarkMode}>Nasze usługi</SectionTitle>
+        </SectionHead>
+        <ServicesGrid>
+          {SERVICES.map((service) => (
+            <ServiceCard key={service.title} $isDark={isDarkMode}>
+              <ServiceTitle>{service.title}</ServiceTitle>
+              <ServiceText $isDark={isDarkMode}>{service.desc}</ServiceText>
+              <ServiceLink to={service.to} $isDark={isDarkMode}>
+                {service.cta} →
+              </ServiceLink>
+            </ServiceCard>
+          ))}
+        </ServicesGrid>
+      </ServicesSection>
+
       <CarsSection id="stock">
         <SectionHead>
           <SectionTitle $isDark={isDarkMode}>Oferta na dziś</SectionTitle>
           <SectionDesc $isDark={isDarkMode}>
-            Sprawdzone auta gotowe do rozmowy. Każde ogłoszenie prowadzi do osobnej karty
-            pojazdu ze zdjęciami i pełnym opisem.
+            Sprawdzone auta gotowe do rozmowy. Każde ogłoszenie prowadzi do
+            osobnej karty pojazdu ze zdjęciami i pełnym opisem.
           </SectionDesc>
         </SectionHead>
         <SimpleCard
@@ -414,7 +518,10 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
           }}
           aria-label={`Przejdz do karty auta ${VW_TIGUAN.brand} ${VW_TIGUAN.model}`}
         >
-          <SimpleImage src={VW_TIGUAN.gallery[0]} alt={`${VW_TIGUAN.brand} ${VW_TIGUAN.model}`} />
+          <SimpleImage
+            src={VW_TIGUAN.gallery[0]}
+            alt={`${VW_TIGUAN.brand} ${VW_TIGUAN.model}`}
+          />
           <SimpleBody>
             <Tag>{VW_TIGUAN.tag}</Tag>
             <CarName>
@@ -423,7 +530,9 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
             <Meta $isDark={isDarkMode}>
               {VW_TIGUAN.year} • {VW_TIGUAN.engine} • {VW_TIGUAN.power}
             </Meta>
-            <CarDescription $isDark={isDarkMode}>{VW_TIGUAN.description}</CarDescription>
+            <CarDescription $isDark={isDarkMode}>
+              {VW_TIGUAN.description}
+            </CarDescription>
             <Price>{VW_TIGUAN.price}</Price>
             <CardButton
               type="button"
@@ -442,8 +551,8 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
         <SectionHead>
           <SectionTitle $isDark={isDarkMode}>Jak działamy</SectionTitle>
           <SectionDesc $isDark={isDarkMode}>
-            Jeden proces niezależnie od tego, czy kupujesz auto ze stocku, czy szukasz
-            modelu na zamówienie.
+            Jeden proces niezależnie od tego, czy kupujesz auto ze stocku, czy
+            szukasz modelu na zamówienie.
           </SectionDesc>
         </SectionHead>
         <StepsGrid>
@@ -468,7 +577,9 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
             onClick={(event) => event.stopPropagation()}
           >
             <ModalHead>
-              <ModalTitle id="contact-modal-title">Skontaktuj się z nami</ModalTitle>
+              <ModalTitle id="contact-modal-title">
+                Skontaktuj się z nami
+              </ModalTitle>
               <CloseButton
                 type="button"
                 $isDark={isDarkMode}
@@ -478,7 +589,8 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
               </CloseButton>
             </ModalHead>
             <ModalText $isDark={isDarkMode}>
-              Wybierz preferowaną formę kontaktu dla auta: <strong>{contactCar}</strong>
+              Wybierz preferowaną formę kontaktu dla auta:{" "}
+              <strong>{contactCar}</strong>
             </ModalText>
             <ContactActions>
               <ContactLink
@@ -487,8 +599,8 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
               >
                 kontakt@carmentor.pl
               </ContactLink>
-              <ContactLink $isDark={isDarkMode} href="tel:+48600123456">
-                +48 600 123 456
+              <ContactLink $isDark={isDarkMode} href="tel:+48660488900">
+                +48 660 488 900
               </ContactLink>
             </ContactActions>
           </ModalCard>

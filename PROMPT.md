@@ -1,8 +1,8 @@
-# CarMentor — Layout Generation Prompt
+# CarMentor - Layout Generation Prompt
 
 ## Twoje zadanie
 
-Twoim zadaniem jest stworzenie **4 unikalnych layoutów** strony głównej CarMentor. Każdy layout to POC (proof of concept) do zaprezentowania klientowi. Layouty muszą się od siebie istotnie różnić — każdy to inna filozofia designu.
+Twoim zadaniem jest stworzenie **4 unikalnych layoutów** strony głównej CarMentor. Każdy layout to POC (proof of concept) do zaprezentowania klientowi. Layouty muszą się od siebie istotnie różnić - każdy to inna filozofia designu.
 
 ---
 
@@ -12,10 +12,10 @@ Twoim zadaniem jest stworzenie **4 unikalnych layoutów** strony głównej CarMe
 
 Klient ma widzieć dwie ścieżki:
 
-- **Stock** — sprawdzone auta "od ręki", gotowe do odbioru
-- **Broker** — usługa "auto na zamówienie" — klient wysyła wymagania, CarMentor szuka, weryfikuje i prowadzi do zakupu
+- **Stock** - sprawdzone auta "od ręki", gotowe do odbioru
+- **Broker** - usługa "auto na zamówienie" - klient wysyła wymagania, CarMentor szuka, weryfikuje i prowadzi do zakupu
 
-Obietnica marki: **"Stoimy po stronie kupującego"** — transparentność, weryfikacja, odradzenie złego zakupu.
+Obietnica marki: **"Stoimy po stronie kupującego"** - transparentność, weryfikacja, odradzenie złego zakupu.
 
 ---
 
@@ -63,8 +63,8 @@ Każdy layout to **jedna strona** (single page) z następującymi sekcjami:
 ### Stack
 
 - **React** (functional components, TypeScript)
-- **styled-components** (v6) — cały styling inline, ZERO zewnętrznych CSS
-- Każdy layout to **jeden plik** `.tsx` — self-contained, z wszystkimi danymi zahardcodowanymi
+- **styled-components** (v6) - cały styling inline, ZERO zewnętrznych CSS
+- Każdy layout to **jeden plik** `.tsx` - self-contained, z wszystkimi danymi zahardcodowanymi
 - Eksportuj komponent jako `export default function LayoutXX()`
 
 ### Dane do użycia
@@ -139,7 +139,7 @@ const STEPS = [
   {
     num: "01",
     title: "Wyślij zapytanie",
-    desc: "Powiedz nam, jakiego auta szukasz — lub wklej link z ogłoszenia.",
+    desc: "Powiedz nam, jakiego auta szukasz - lub wklej link z ogłoszenia.",
   },
   {
     num: "02",
@@ -193,7 +193,7 @@ const GlobalStyle = createGlobalStyle`
 - [ ] 3 layouty w osobnych plikach w Twoim folderze agenta
 - [ ] Wszystkie layouty używają identycznych danych (CARS i STEPS)
 - [ ] Responsywność: desktop, tablet, mobile
-- [ ] Zero zewnętrznych CSS — tylko styled-components
+- [ ] Zero zewnętrznych CSS - tylko styled-components
 - [ ] Każdy layout ma GlobalStyle z resetem
 - [ ] Layouty wizualnie się od siebie istotnie różnią
 - [ ] Kod kompiluje się bez błędów TypeScript
@@ -204,6 +204,6 @@ const GlobalStyle = createGlobalStyle`
 ## Czego NIE robić
 
 - NIE używaj zewnętrznych bibliotek CSS (Tailwind, Bootstrap, etc.)
-- NIE twórz wielu plików na layout — jeden plik = jeden layout
-- NIE dodawaj interaktywności (formularze, modals) — to jest POC wizualny
+- NIE twórz wielu plików na layout - jeden plik = jeden layout
+- NIE dodawaj interaktywności (formularze, modals) - to jest POC wizualny
 - NIE modyfikuj plików poza swoim folderem agenta

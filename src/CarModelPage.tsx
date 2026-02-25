@@ -521,8 +521,8 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
               <ContactLink $isDark={isDarkMode} href={`mailto:kontakt@carmentor.pl?subject=${emailSubject}`}>
                 kontakt@carmentor.pl
               </ContactLink>
-              <ContactLink $isDark={isDarkMode} href="tel:+48600123456">
-                +48 600 123 456
+              <ContactLink $isDark={isDarkMode} href="tel:+48660488900">
+                +48 660 488 900
               </ContactLink>
             </ContactActions>
           </ModalCard>
