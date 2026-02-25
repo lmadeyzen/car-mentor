@@ -15,7 +15,7 @@ export const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
   }
   
   body {
-    font-family: "Arboria", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     font-size: 16px;
     color: ${({ $isDark }) => ($isDark ? "#f0f3f2" : "#161616")};
     background: ${({ $isDark }) => ($isDark ? "#0f1513" : "#f5f5f5")};
