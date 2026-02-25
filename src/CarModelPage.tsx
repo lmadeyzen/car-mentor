@@ -257,9 +257,14 @@ const Price = styled.p`
   font-weight: 800;
 `;
 
+const ButtonsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+`;
+
 const CardButton = styled.button<{ $isDark: boolean }>`
   display: inline-flex;
-  width: 100%;
   justify-content: center;
   align-items: center;
   border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
@@ -269,6 +274,21 @@ const CardButton = styled.button<{ $isDark: boolean }>`
   padding: 10px 14px;
   font-size: 0.9rem;
   font-weight: 700;
+  cursor: pointer;
+`;
+
+const OtomotoLink = styled.a<{ $isDark: boolean }>`
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid ${({ $isDark }) => ($isDark ? "#4a6860" : "#b0c4bc")};
+  color: ${({ $isDark }) => ($isDark ? "#c5d8d1" : "#3a5a4e")};
+  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f0f7f4")};
+  border-radius: 11px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
   cursor: pointer;
 `;
 
@@ -432,8 +452,8 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
                 <SpecValue>{car.power}</SpecValue>
               </SpecItem>
               <SpecItem $isDark={isDarkMode}>
-                <SpecLabel $isDark={isDarkMode}>Moment obrotowy</SpecLabel>
-                <SpecValue>{car.torque}</SpecValue>
+                <SpecLabel $isDark={isDarkMode}>Przebieg</SpecLabel>
+                <SpecValue>{car.mileage}</SpecValue>
               </SpecItem>
               <SpecItem $isDark={isDarkMode}>
                 <SpecLabel $isDark={isDarkMode}>Skrzynia biegów</SpecLabel>
@@ -441,14 +461,26 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
               </SpecItem>
             </SpecsGrid>
             <Price>{car.price}</Price>
-            <CardButton
-              id="contact"
-              type="button"
-              $isDark={isDarkMode}
-              onClick={() => setContactCar(`${car.brand} ${car.model}`)}
-            >
-              Zapytaj o to auto
-            </CardButton>
+            <ButtonsRow>
+              <CardButton
+                id="contact"
+                type="button"
+                $isDark={isDarkMode}
+                onClick={() => setContactCar(`${car.brand} ${car.model}`)}
+              >
+                Zapytaj o to auto
+              </CardButton>
+              {car.otomotoUrl && (
+                <OtomotoLink
+                  $isDark={isDarkMode}
+                  href={car.otomotoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Zobacz na Otomoto
+                </OtomotoLink>
+              )}
+            </ButtonsRow>
           </CarBody>
         </CarCard>
         <DescriptionCard $isDark={isDarkMode}>

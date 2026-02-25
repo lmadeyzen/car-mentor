@@ -316,10 +316,6 @@ export default function ContactPage({
                 <Submit $isDark={isDarkMode} type="button">
                   Wyślij zapytanie
                 </Submit>
-                <Note $isDark={isDarkMode}>
-                  MVP: formularz gotowy pod podpięcie do CRM (statusy: nowy / w
-                  trakcie / oferta wysłana / wygrany / przegrany).
-                </Note>
               </Full>
             </FormGrid>
           </Card>

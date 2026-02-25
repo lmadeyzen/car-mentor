@@ -259,7 +259,7 @@ export function SiteFooter({ isDarkMode }: Pick<ChromeProps, "isDarkMode">) {
         <div>
           <FooterTitle $isDark={isDarkMode}>CarMentor</FooterTitle>
           <FooterText $isDark={isDarkMode}>
-            tawiamy na bezpieczeństwo zakupu i przejrzyste zasady. Weryfikujemy
+            Stawiamy na bezpieczeństwo zakupu i przejrzyste zasady. Weryfikujemy
             samochód, pokazujemy fakty i jasno mówimy, czy to dobry wybór.
             CarMentor Prowadzimy Cię przez cały proces - od wyboru po
             finalizację, spokojnie i bez ryzyka.

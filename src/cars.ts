@@ -17,9 +17,10 @@ export type CarOffer = {
   }>;
   engine: string;
   power: string;
-  torque: string;
+  mileage: string;
   gearbox: string;
   price: string;
+  otomotoUrl?: string;
   tag: "Od ręki";
   gallery: string[];
 };
@@ -136,9 +137,10 @@ export const VW_TIGUAN: CarOffer = {
   ],
   engine: "1 968 cm3",
   power: "240 KM",
-  torque: "500 Nm",
+  mileage: "169 078 km",
   gearbox: "Automatyczna DSG",
-  price: "Zapytaj o cenę",
+  price: "83 900 PLN",
+  otomotoUrl: "https://www.otomoto.pl/osobowe/oferta/volkswagen-tiguan-ID6HUNRM.html",
   tag: "Od ręki",
   gallery: [vw001, vw002, vw003, vw004, vw005],
 };
