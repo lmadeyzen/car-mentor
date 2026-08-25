@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { CARS_BY_SLUG } from "./cars";
+import { CARS_BY_SLUG, fetchCar, type CarOffer } from "./cars";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 
 const ACCENT_COLOR = "#00573F";
@@ -366,23 +366,70 @@ type CarModelPageProps = {
 
 export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPageProps) {
   const { carSlug } = useParams<{ carSlug: string }>();
-  const car = useMemo(() => (carSlug ? CARS_BY_SLUG[carSlug] : null), [carSlug]);
-  const [activePhoto, setActivePhoto] = useState(car?.gallery[0] ?? "");
+  const [car, setCar] = useState<CarOffer | null>(null);
+  const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
+  const [activePhoto, setActivePhoto] = useState("");
   const [contactCar, setContactCar] = useState<string | null>(null);
   const [showFullEquipment, setShowFullEquipment] = useState(false);
 
   useEffect(() => {
-    setActivePhoto(car?.gallery[0] ?? "");
-  }, [car]);
+    if (!carSlug) {
+      return;
+    }
+
+    let cancelled = false;
+    fetchCar(carSlug)
+      .then((found) => found ?? CARS_BY_SLUG[carSlug] ?? null)
+      .catch(() => CARS_BY_SLUG[carSlug] ?? null)
+      .then((next) => {
+        if (cancelled) {
+          return;
+        }
+        setCar(next);
+        setLoadedSlug(carSlug);
+        setActivePhoto(next?.gallery[0] ?? "");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [carSlug]);
+
+  const isLoading = Boolean(carSlug) && loadedSlug !== carSlug;
 
   useEffect(() => {
-    if (!contactCar) return;
+    if (!contactCar) {
+      return;
+    }
     const onEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setContactCar(null);
     };
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [contactCar]);
+
+  if (!carSlug) {
+    return (
+      <Page>
+        <Wrap>
+          <p>Nie znaleziono samochodu.</p>
+          <p>
+            <Link to="/">Wróć do strony głównej</Link>
+          </p>
+        </Wrap>
+      </Page>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Page>
+        <Wrap>
+          <p>Ładowanie oferty...</p>
+        </Wrap>
+      </Page>
+    );
+  }
 
   if (!car) {
     return (

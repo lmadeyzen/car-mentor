@@ -182,12 +182,6 @@ const Submit = styled.button<{ $isDark: boolean }>`
   cursor: pointer;
 `;
 
-const Note = styled.p<{ $isDark: boolean }>`
-  margin-top: 10px;
-  font-size: 0.84rem;
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5e5e5e")};
-`;
-
 const ContactList = styled.div`
   display: grid;
   gap: 10px;

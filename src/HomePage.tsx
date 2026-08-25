@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { VW_TIGUAN } from "./cars";
+import { fetchCars, VW_TIGUAN, type CarOffer } from "./cars";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 
 type Step = {
@@ -191,6 +191,12 @@ const CarsSection = styled(Section)`
   margin-bottom: 78px;
 `;
 
+const CarsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+`;
+
 const SimpleCard = styled.article<{ $isDark: boolean }>`
   background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
   border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
@@ -198,7 +204,6 @@ const SimpleCard = styled.article<{ $isDark: boolean }>`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-width: 460px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
@@ -439,6 +444,13 @@ type HomePageProps = {
 export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
   const navigate = useNavigate();
   const [contactCar, setContactCar] = useState<string | null>(null);
+  const [cars, setCars] = useState<CarOffer[]>([VW_TIGUAN]);
+
+  useEffect(() => {
+    fetchCars()
+      .then(setCars)
+      .catch(() => setCars([VW_TIGUAN]));
+  }, []);
 
   useEffect(() => {
     if (!contactCar) {
@@ -458,6 +470,7 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
   const emailSubject = contactCar
     ? encodeURIComponent(`Zapytanie o auto: ${contactCar}`)
     : encodeURIComponent("Zapytanie o auto");
+  const featured = cars[0] ?? VW_TIGUAN;
 
   return (
     <Page>
@@ -472,12 +485,15 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
           </HeroText>
           <CtaRow>
             <PrimaryButton href="#stock">Zobacz ofertę</PrimaryButton>
-            <SecondaryButton as={Link} to={`/samochod/${VW_TIGUAN.slug}`}>
+            <SecondaryButton as={Link} to={`/samochod/${featured.slug}`}>
               Zobacz samochód
             </SecondaryButton>
           </CtaRow>
         </HeroCard>
-        <HeroImage src={VW_TIGUAN.gallery[1]} alt="Volkswagen Tiguan" />
+        <HeroImage
+          src={featured.gallery[1] ?? featured.gallery[0]}
+          alt={`${featured.brand} ${featured.model}`}
+        />
       </Hero>
 
       <ServicesSection id="services">
@@ -505,47 +521,56 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
             osobnej karty pojazdu ze zdjęciami i pełnym opisem.
           </SectionDesc>
         </SectionHead>
-        <SimpleCard
-          $isDark={isDarkMode}
-          role="link"
-          tabIndex={0}
-          onClick={() => navigate(`/samochod/${VW_TIGUAN.slug}`)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              navigate(`/samochod/${VW_TIGUAN.slug}`);
-            }
-          }}
-          aria-label={`Przejdz do karty auta ${VW_TIGUAN.brand} ${VW_TIGUAN.model}`}
-        >
-          <SimpleImage
-            src={VW_TIGUAN.gallery[0]}
-            alt={`${VW_TIGUAN.brand} ${VW_TIGUAN.model}`}
-          />
-          <SimpleBody>
-            <Tag>{VW_TIGUAN.tag}</Tag>
-            <CarName>
-              {VW_TIGUAN.brand} {VW_TIGUAN.model}
-            </CarName>
-            <Meta $isDark={isDarkMode}>
-              {VW_TIGUAN.year} • {VW_TIGUAN.engine} • {VW_TIGUAN.power}
-            </Meta>
-            <CarDescription $isDark={isDarkMode}>
-              {VW_TIGUAN.description}
-            </CarDescription>
-            <Price>{VW_TIGUAN.price}</Price>
-            <CardButton
-              type="button"
-              $isDark={isDarkMode}
-              onClick={(event) => {
-                event.stopPropagation();
-                setContactCar(`${VW_TIGUAN.brand} ${VW_TIGUAN.model}`);
-              }}
-            >
-              Zapytaj o to auto
-            </CardButton>
-          </SimpleBody>
-        </SimpleCard>
+        {cars.length === 0 ? (
+          <p>Aktualnie brak aut w ofercie.</p>
+        ) : (
+          <CarsGrid>
+            {cars.map((car) => (
+              <SimpleCard
+                key={car.slug}
+                $isDark={isDarkMode}
+                role="link"
+                tabIndex={0}
+                onClick={() => navigate(`/samochod/${car.slug}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigate(`/samochod/${car.slug}`);
+                  }
+                }}
+                aria-label={`Przejdz do karty auta ${car.brand} ${car.model}`}
+              >
+                <SimpleImage
+                  src={car.gallery[0]}
+                  alt={`${car.brand} ${car.model}`}
+                />
+                <SimpleBody>
+                  <Tag>{car.tag}</Tag>
+                  <CarName>
+                    {car.brand} {car.model}
+                  </CarName>
+                  <Meta $isDark={isDarkMode}>
+                    {car.year} • {car.engine} • {car.power}
+                  </Meta>
+                  <CarDescription $isDark={isDarkMode}>
+                    {car.description}
+                  </CarDescription>
+                  <Price>{car.price}</Price>
+                  <CardButton
+                    type="button"
+                    $isDark={isDarkMode}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setContactCar(`${car.brand} ${car.model}`);
+                    }}
+                  >
+                    Zapytaj o to auto
+                  </CardButton>
+                </SimpleBody>
+              </SimpleCard>
+            ))}
+          </CarsGrid>
+        )}
       </CarsSection>
       <StepsSection id="how">
         <SectionHead>

@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteRule ^api/data(/|$) - [F,L]
+RewriteRule ^api/ - [L]
+RewriteRule ^admin/ - [L]
+RewriteRule ^uploads/ - [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

@@ -21,9 +21,30 @@ export type CarOffer = {
   gearbox: string;
   price: string;
   otomotoUrl?: string;
-  tag: "Od ręki";
+  tag: "Od ręki" | "Sprawdzone";
   gallery: string[];
+  published?: boolean;
 };
+
+export async function fetchCars(): Promise<CarOffer[]> {
+  const response = await fetch("/api/cars.php");
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać oferty");
+  }
+  const data: unknown = await response.json();
+  return Array.isArray(data) ? (data as CarOffer[]) : [];
+}
+
+export async function fetchCar(slug: string): Promise<CarOffer | null> {
+  const response = await fetch(`/api/cars.php?slug=${encodeURIComponent(slug)}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error("Nie udało się pobrać auta");
+  }
+  return (await response.json()) as CarOffer;
+}
 
 export const VW_TIGUAN: CarOffer = {
   slug: "vw-tiguan",
