@@ -3,361 +3,462 @@ import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { CARS_BY_SLUG, fetchCar, type CarOffer } from "./cars";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
-
-const ACCENT_COLOR = "#00573F";
-const ACCENT_COLOR_DARK = "#33c39b";
+import { CarTag, ContactModal, Icon, PrimaryButton, SecondaryButton } from "./components/ui";
+import {
+  ACCENT_COLOR,
+  ACCENT_COLOR_DARK,
+  accent,
+  accentSoft,
+  border,
+  borderStrong,
+  cardShadow,
+  surface,
+  surfaceMuted,
+  textBody,
+  textMuted,
+  textStrong,
+  type ThemeProps,
+} from "./theme";
 
 const Page = styled.div`
   min-height: 100vh;
 `;
 
 const Wrap = styled.section`
-  width: min(1180px, calc(100% - 48px));
+  width: min(1280px, calc(100% - 48px));
   margin: 0 auto;
-  padding: 30px 0 56px;
+  padding: 28px 0 72px;
 
   @media (max-width: 767px) {
     width: calc(100% - 28px);
-    padding-top: 22px;
+    padding-top: 18px;
+    padding-bottom: 48px;
   }
 `;
 
-const BackLink = styled(Link)<{ $isDark: boolean }>`
+const BackLink = styled(Link)<ThemeProps>`
   display: inline-flex;
-  margin-bottom: 14px;
-  color: ${({ $isDark }) => ($isDark ? "#c7d2ce" : "#3f4d47")};
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 8px 14px 8px 10px;
+  border-radius: 999px;
+  border: 1px solid ${border};
+  background: ${surface};
+  color: ${textBody};
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  &:hover {
+    color: ${accent};
+  }
+`;
+
+const Header = styled.header`
+  margin-bottom: 24px;
+`;
+
+const Title = styled.h1<ThemeProps>`
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  color: ${textStrong};
+  margin-bottom: 10px;
+`;
+
+const Subtitle = styled.p<ThemeProps>`
+  color: ${textMuted};
+  font-size: 1rem;
+`;
+
+const Showcase = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 28px;
+  align-items: start;
+
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+`;
+
+const Gallery = styled.div`
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+`;
+
+const MainImageFrame = styled.div<ThemeProps>`
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  aspect-ratio: 16 / 10;
+  background: ${surfaceMuted};
+  box-shadow: ${cardShadow};
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 32%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent);
+    pointer-events: none;
+  }
+
+  @media (max-width: 767px) {
+    border-radius: 18px;
+    aspect-ratio: 4 / 3;
+  }
+`;
+
+const MainImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const ImageOverlay = styled.div`
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+const PhotoCounter = styled.span`
+  font-size: 0.8rem;
   font-weight: 700;
+  color: #ffffff;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
 `;
 
-const Title = styled.h1<{ $isDark: boolean }>`
-  font-size: clamp(1.55rem, 2.8vw, 2.4rem);
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  margin-bottom: 8px;
+const ThumbGrid = styled.div`
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(96px, 1fr);
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+
+  @media (max-width: 767px) {
+    grid-auto-columns: 84px;
+  }
 `;
 
-const Subtitle = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#b4c1bc" : "#5e6b66")};
-  margin-bottom: 22px;
+const ThumbButton = styled.button<ThemeProps & { $active: boolean }>`
+  position: relative;
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: 2px solid ${({ $active, $isDark }) =>
+    $active ? ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR) : "transparent"};
+  outline-offset: 2px;
+  opacity: ${({ $active }) => ($active ? 1 : 0.62)};
+  transition: opacity 0.2s ease, outline-color 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
-const DescriptionCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
-  border-radius: 18px;
-  padding: 20px;
-  margin-top: 18px;
+const ThumbImage = styled.img`
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 `;
 
-const DescriptionTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 1.15rem;
-  margin-bottom: 10px;
-  color: ${({ $isDark }) => ($isDark ? "#e7efec" : "#1f2b27")};
+const SummaryCard = styled.aside<ThemeProps>`
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 20px;
+  padding: 26px;
+  border-radius: 24px;
+  border: 1px solid ${border};
+  background: ${surface};
+  box-shadow: ${cardShadow};
+
+  @media (max-width: 1023px) {
+    position: static;
+  }
+
+  @media (max-width: 767px) {
+    padding: 20px;
+    border-radius: 18px;
+  }
 `;
 
-const DescriptionParagraph = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#c1ceca" : "#43514c")};
-  line-height: 1.7;
-  margin-bottom: 10px;
+const SummaryHead = styled.div`
+  display: grid;
+  gap: 6px;
+`;
+
+const Brand = styled.span<ThemeProps>`
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${accent};
+`;
+
+const CarName = styled.h2<ThemeProps>`
+  font-size: 1.4rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: ${textStrong};
+`;
+
+const Meta = styled.p<ThemeProps>`
+  color: ${textMuted};
+  font-size: 0.92rem;
+`;
+
+const SpecsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+`;
+
+const SpecItem = styled.div<ThemeProps>`
+  display: grid;
+  gap: 8px;
+  border-radius: 16px;
+  background: ${surfaceMuted};
+  padding: 14px;
+`;
+
+const SpecIcon = styled.span<ThemeProps>`
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  color: ${accent};
+  background: ${accentSoft};
+`;
+
+const SpecLabel = styled.p<ThemeProps>`
+  font-size: 0.74rem;
+  color: ${textMuted};
+`;
+
+const SpecValue = styled.p<ThemeProps>`
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: ${textStrong};
+`;
+
+const PriceBlock = styled.div<ThemeProps>`
+  padding-top: 18px;
+  border-top: 1px solid ${border};
+`;
+
+const PriceLabel = styled.p<ThemeProps>`
+  font-size: 0.78rem;
+  color: ${textMuted};
+  margin-bottom: 4px;
+`;
+
+const Price = styled.p<ThemeProps>`
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  color: ${textStrong};
+`;
+
+const ButtonsRow = styled.div`
+  display: grid;
+  gap: 10px;
+`;
+
+const CardButton = styled(PrimaryButton)`
+  min-height: 54px;
+`;
+
+const OtomotoLink = styled(SecondaryButton)`
+  min-height: 54px;
+`;
+
+const DetailsGrid = styled.div`
+  display: grid;
+  gap: 20px;
+  margin-top: 28px;
+`;
+
+const SectionCard = styled.article<ThemeProps>`
+  background: ${surface};
+  border: 1px solid ${border};
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: ${cardShadow};
+
+  @media (max-width: 767px) {
+    padding: 20px;
+    border-radius: 18px;
+  }
+`;
+
+const SectionHead = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+`;
+
+const SectionTitleRow = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const SectionIcon = styled.span<ThemeProps>`
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  align-items: center;
+  justify-content: center;
+  color: ${accent};
+  background: ${accentSoft};
+`;
+
+const SectionTitle = styled.h3<ThemeProps>`
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: ${textStrong};
+`;
+
+const DescriptionBody = styled.div`
+  max-width: 820px;
+`;
+
+const DescriptionParagraph = styled.p<ThemeProps>`
+  color: ${textBody};
+  font-size: 1rem;
+  line-height: 1.75;
+  margin-bottom: 14px;
 
   &:last-child {
     margin-bottom: 0;
   }
 `;
 
-const EquipmentCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
-  border-radius: 18px;
-  padding: 20px;
-  margin-top: 18px;
-`;
-
-const EquipmentHead = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-`;
-
-const EquipmentTitleRow = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const EquipmentIcon = styled.span<{ $isDark: boolean }>`
-  display: inline-flex;
-  width: 28px;
-  height: 28px;
+const ExpandButton = styled.button<ThemeProps>`
   border-radius: 999px;
-  align-items: center;
-  justify-content: center;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? "#1f312b" : "#e8f3ef")};
-`;
-
-const EquipmentTitle = styled.h3<{ $isDark: boolean }>`
-  font-size: 1.15rem;
-  color: ${({ $isDark }) => ($isDark ? "#e7efec" : "#1f2b27")};
-`;
-
-const ExpandButton = styled.button<{ $isDark: boolean }>`
-  border-radius: 10px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#3f5b53" : "#c9d8d2")};
-  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f5faf8")};
-  color: ${({ $isDark }) => ($isDark ? "#dce8e4" : "#214039")};
-  padding: 8px 12px;
-  font-size: 0.82rem;
+  border: 1px solid ${borderStrong};
+  background: transparent;
+  color: ${textStrong};
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 0.84rem;
   font-weight: 700;
   cursor: pointer;
+
+  &:hover {
+    background: ${surfaceMuted};
+  }
 `;
 
 const EquipmentGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 10px;
-`;
-
-const EquipmentSection = styled.section<{ $isDark: boolean }>`
-  border-radius: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#345047" : "#d6dfdb")};
-  background: ${({ $isDark }) => ($isDark ? "#1a2924" : "#f8fbfa")};
-  padding: 12px;
-`;
-
-const EquipmentSectionTitle = styled.h4<{ $isDark: boolean }>`
-  font-size: 0.9rem;
-  margin-bottom: 8px;
-  color: ${({ $isDark }) => ($isDark ? "#dbe7e2" : "#233832")};
-`;
-
-const EquipmentList = styled.ul<{ $isDark: boolean }>`
-  display: grid;
-  gap: 7px;
-  padding-left: 18px;
-  color: ${({ $isDark }) => ($isDark ? "#c2cfca" : "#43514c")};
-  line-height: 1.5;
-  font-size: 0.9rem;
-`;
-
-const CarCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
-  border-radius: 24px;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 22px;
-
-  @media (max-width: 1023px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Gallery = styled.div`
-  display: grid;
-  gap: 10px;
-`;
-
-const MainImage = styled.img`
-  width: 100%;
-  height: 430px;
-  object-fit: cover;
-  border-radius: 16px;
-  border: 1px solid #ced8d4;
-
-  @media (max-width: 767px) {
-    height: 310px;
-  }
-`;
-
-const ThumbGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-
-  @media (max-width: 767px) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-`;
-
-const ThumbButton = styled.button<{ $isDark: boolean; $active: boolean }>`
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid
-    ${({ $active, $isDark }) =>
-      $active ? ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR) : "transparent"};
-  background: transparent;
-  cursor: pointer;
-`;
-
-const ThumbImage = styled.img`
-  width: 100%;
-  height: 72px;
-  object-fit: cover;
-`;
-
-const CarBody = styled.div`
-  padding: 4px;
-`;
-
-const Tag = styled.span`
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 99px;
-  padding: 6px 10px;
-  color: ${ACCENT_COLOR};
-  background: #d7efe8;
-  border: 1px solid #b6ddd1;
-  margin-bottom: 10px;
-`;
-
-const CarName = styled.h2`
-  font-size: clamp(1.45rem, 2vw, 1.82rem);
-  margin-bottom: 10px;
-`;
-
-const Meta = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aab5b1" : "#666")};
-  font-size: 0.96rem;
-`;
-
-const SpecsGrid = styled.div<{ $isDark: boolean }>`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 14px;
-  margin-bottom: 18px;
-`;
-
-const SpecItem = styled.div<{ $isDark: boolean }>`
-  border-radius: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#345047" : "#d6dfdb")};
-  background: ${({ $isDark }) => ($isDark ? "#1a2924" : "#f8fbfa")};
-  padding: 10px 12px;
-`;
-
-const SpecLabel = styled.p<{ $isDark: boolean }>`
-  font-size: 0.75rem;
-  color: ${({ $isDark }) => ($isDark ? "#9fb0ab" : "#61716b")};
-  margin-bottom: 3px;
-`;
-
-const SpecValue = styled.p`
-  font-size: 0.93rem;
-  font-weight: 700;
-`;
-
-const Price = styled.p`
-  margin-top: 14px;
-  margin-bottom: 18px;
-  font-size: 1.35rem;
-  font-weight: 800;
-`;
-
-const ButtonsRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-`;
-
-const CardButton = styled.button<{ $isDark: boolean }>`
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  color: ${({ $isDark }) => ($isDark ? "#0c1613" : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : "transparent")};
-  border-radius: 11px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-`;
-
-const OtomotoLink = styled.a<{ $isDark: boolean }>`
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#4a6860" : "#b0c4bc")};
-  color: ${({ $isDark }) => ($isDark ? "#c5d8d1" : "#3a5a4e")};
-  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f0f7f4")};
-  border-radius: 11px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-`;
-
-const ModalOverlay = styled.div<{ $isDark: boolean }>`
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: ${({ $isDark }) => ($isDark ? "rgba(6, 10, 9, 0.74)" : "rgba(0, 0, 0, 0.45)")};
-`;
-
-const ModalCard = styled.div<{ $isDark: boolean }>`
-  width: min(520px, 100%);
-  border-radius: 18px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#335048" : "#d5ddd9")};
-  background: ${({ $isDark }) => ($isDark ? "#14201c" : "white")};
-  color: ${({ $isDark }) => ($isDark ? "#eff4f2" : "#19201d")};
-  padding: 22px;
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
-`;
-
-const ModalHead = styled.div`
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
 `;
 
-const ModalTitle = styled.h3`
-  font-size: 1.2rem;
+const EquipmentSection = styled.section<ThemeProps>`
+  border-radius: 18px;
+  background: ${surfaceMuted};
+  padding: 18px;
 `;
 
-const CloseButton = styled.button<{ $isDark: boolean }>`
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#44635a" : "#cad4d0")};
-  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f7faf9")};
-  color: ${({ $isDark }) => ($isDark ? "#d8e4e0" : "#1d2a26")};
-  border-radius: 10px;
-  font-size: 0.9rem;
+const EquipmentSectionTitle = styled.h4<ThemeProps>`
+  font-size: 0.8rem;
   font-weight: 700;
-  padding: 8px 11px;
-  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  color: ${accent};
 `;
 
-const ModalText = styled.p<{ $isDark: boolean }>`
-  margin-top: 12px;
-  margin-bottom: 16px;
-  color: ${({ $isDark }) => ($isDark ? "#c6d4cf" : "#43514c")};
-  line-height: 1.5;
-`;
-
-const ContactActions = styled.div`
+const EquipmentList = styled.ul<ThemeProps>`
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 9px;
+  list-style: none;
+  color: ${textBody};
+  line-height: 1.5;
+  font-size: 0.92rem;
+
+  li {
+    position: relative;
+    padding-left: 22px;
+  }
+
+  li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.32em;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: ${accent};
+    opacity: 0.18;
+  }
+
+  li::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: calc(0.32em + 4px);
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background: ${accent};
+  }
 `;
 
-const ContactLink = styled.a<{ $isDark: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  border-radius: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? "#1f332d" : "#eaf6f2")};
-  color: ${({ $isDark }) => ($isDark ? "#e8f4ef" : ACCENT_COLOR)};
-  font-weight: 700;
-`;
+const SPEC_ICONS = {
+  engine: (
+    <Icon size={16}>
+      <path d="M4 10h2V8h4V6h4v2h3l2 3v5h-2v2h-4l-2-2H8v-2H6v2H4z" />
+    </Icon>
+  ),
+  power: (
+    <Icon size={16}>
+      <path d="M13 3 5 14h6l-1 7 8-11h-6z" />
+    </Icon>
+  ),
+  mileage: (
+    <Icon size={16}>
+      <path d="M4 17a8 8 0 1 1 16 0" />
+      <path d="m12 17 4-5" />
+    </Icon>
+  ),
+  gearbox: (
+    <Icon size={16}>
+      <circle cx="6" cy="6" r="2" />
+      <circle cx="12" cy="6" r="2" />
+      <circle cx="18" cy="6" r="2" />
+      <path d="M6 8v10M12 8v10M18 8v4H6" />
+    </Icon>
+  ),
+};
 
 type CarModelPageProps = {
   isDarkMode: boolean;
@@ -397,17 +498,6 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
 
   const isLoading = Boolean(carSlug) && loadedSlug !== carSlug;
 
-  useEffect(() => {
-    if (!contactCar) {
-      return;
-    }
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setContactCar(null);
-    };
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
-  }, [contactCar]);
-
   if (!carSlug) {
     return (
       <Page>
@@ -444,10 +534,16 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
     );
   }
 
-  const emailSubject = encodeURIComponent(`Zapytanie o auto: ${car.brand} ${car.model}`);
   const visibleEquipmentSections = showFullEquipment
     ? car.equipmentSections
     : car.equipmentSections.slice(0, 3);
+  const activePhotoIndex = car.gallery.indexOf(activePhoto);
+  const specs = [
+    { key: "engine", label: "Pojemność silnika", value: car.engine },
+    { key: "power", label: "Moc", value: car.power },
+    { key: "mileage", label: "Przebieg", value: car.mileage },
+    { key: "gearbox", label: "Skrzynia biegów", value: car.gearbox },
+  ] as const;
 
   return (
     <Page>
@@ -459,15 +555,27 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
         <BackLink to="/" $isDark={isDarkMode}>
           ← Wróć do oferty
         </BackLink>
-        <Title $isDark={isDarkMode}>
-          {car.brand} {car.model}
-        </Title>
-        <Subtitle $isDark={isDarkMode}>
-          Szczegółowa karta pojazdu. Możesz spokojnie przejrzeć zdjęcia i specyfikację.
-        </Subtitle>
-        <CarCard id="gallery" $isDark={isDarkMode}>
+        <Header>
+          <Title $isDark={isDarkMode}>
+            {car.brand} {car.model}
+          </Title>
+          <Subtitle $isDark={isDarkMode}>
+            Szczegółowa karta pojazdu. Możesz spokojnie przejrzeć zdjęcia i specyfikację.
+          </Subtitle>
+        </Header>
+        <Showcase id="gallery">
           <Gallery>
-            <MainImage src={activePhoto} alt={`${car.brand} ${car.model}`} />
+            <MainImageFrame $isDark={isDarkMode}>
+              <MainImage src={activePhoto} alt={`${car.brand} ${car.model}`} />
+              <ImageOverlay>
+                <CarTag>{car.tag}</CarTag>
+                {car.gallery.length > 1 && activePhotoIndex >= 0 ? (
+                  <PhotoCounter>
+                    {activePhotoIndex + 1} / {car.gallery.length}
+                  </PhotoCounter>
+                ) : null}
+              </ImageOverlay>
+            </MainImageFrame>
             <ThumbGrid>
               {car.gallery.map((photoSrc, index) => (
                 <ThumbButton
@@ -483,31 +591,27 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
               ))}
             </ThumbGrid>
           </Gallery>
-          <CarBody>
-            <Tag>{car.tag}</Tag>
-            <CarName>
-              {car.brand} {car.model}
-            </CarName>
-            <Meta $isDark={isDarkMode}>Rok produkcji: {car.year}</Meta>
-            <SpecsGrid $isDark={isDarkMode}>
-              <SpecItem $isDark={isDarkMode}>
-                <SpecLabel $isDark={isDarkMode}>Pojemność silnika</SpecLabel>
-                <SpecValue>{car.engine}</SpecValue>
-              </SpecItem>
-              <SpecItem $isDark={isDarkMode}>
-                <SpecLabel $isDark={isDarkMode}>Moc</SpecLabel>
-                <SpecValue>{car.power}</SpecValue>
-              </SpecItem>
-              <SpecItem $isDark={isDarkMode}>
-                <SpecLabel $isDark={isDarkMode}>Przebieg</SpecLabel>
-                <SpecValue>{car.mileage}</SpecValue>
-              </SpecItem>
-              <SpecItem $isDark={isDarkMode}>
-                <SpecLabel $isDark={isDarkMode}>Skrzynia biegów</SpecLabel>
-                <SpecValue>{car.gearbox}</SpecValue>
-              </SpecItem>
+          <SummaryCard $isDark={isDarkMode}>
+            <SummaryHead>
+              <Brand $isDark={isDarkMode}>{car.brand}</Brand>
+              <CarName $isDark={isDarkMode}>{car.model}</CarName>
+              <Meta $isDark={isDarkMode}>Rok produkcji: {car.year}</Meta>
+            </SummaryHead>
+            <SpecsGrid>
+              {specs.map((spec) => (
+                <SpecItem key={spec.key} $isDark={isDarkMode}>
+                  <SpecIcon $isDark={isDarkMode}>{SPEC_ICONS[spec.key]}</SpecIcon>
+                  <div>
+                    <SpecLabel $isDark={isDarkMode}>{spec.label}</SpecLabel>
+                    <SpecValue $isDark={isDarkMode}>{spec.value}</SpecValue>
+                  </div>
+                </SpecItem>
+              ))}
             </SpecsGrid>
-            <Price>{car.price}</Price>
+            <PriceBlock $isDark={isDarkMode}>
+              <PriceLabel $isDark={isDarkMode}>Cena</PriceLabel>
+              <Price $isDark={isDarkMode}>{car.price}</Price>
+            </PriceBlock>
             <ButtonsRow>
               <CardButton
                 id="contact"
@@ -519,6 +623,7 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
               </CardButton>
               {car.otomotoUrl && (
                 <OtomotoLink
+                  as="a"
                   $isDark={isDarkMode}
                   href={car.otomotoUrl}
                   target="_blank"
@@ -528,84 +633,71 @@ export default function CarModelPage({ isDarkMode, onToggleTheme }: CarModelPage
                 </OtomotoLink>
               )}
             </ButtonsRow>
-          </CarBody>
-        </CarCard>
-        <DescriptionCard $isDark={isDarkMode}>
-          <DescriptionTitle $isDark={isDarkMode}>Opis pojazdu</DescriptionTitle>
-          {car.detailedDescription.map((paragraph) => (
-            <DescriptionParagraph $isDark={isDarkMode} key={paragraph}>
-              {paragraph}
-            </DescriptionParagraph>
-          ))}
-        </DescriptionCard>
-        <EquipmentCard $isDark={isDarkMode}>
-          <EquipmentHead>
-            <EquipmentTitleRow>
-              <EquipmentIcon $isDark={isDarkMode} aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M4 7h16M6 12h12M8 17h8"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </EquipmentIcon>
-              <EquipmentTitle $isDark={isDarkMode}>Wyposażenie</EquipmentTitle>
-            </EquipmentTitleRow>
-            {car.equipmentSections.length > 3 ? (
-              <ExpandButton
-                type="button"
-                $isDark={isDarkMode}
-                onClick={() => setShowFullEquipment((prev) => !prev)}
-              >
-                {showFullEquipment ? "Pokaż mniej" : "Więcej"}
-              </ExpandButton>
-            ) : null}
-          </EquipmentHead>
-          <EquipmentGrid>
-            {visibleEquipmentSections.map((section) => (
-              <EquipmentSection key={section.title} $isDark={isDarkMode}>
-                <EquipmentSectionTitle $isDark={isDarkMode}>{section.title}</EquipmentSectionTitle>
-                <EquipmentList $isDark={isDarkMode}>
-                  {section.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </EquipmentList>
-              </EquipmentSection>
-            ))}
-          </EquipmentGrid>
-        </EquipmentCard>
+          </SummaryCard>
+        </Showcase>
+        <DetailsGrid>
+          <SectionCard $isDark={isDarkMode}>
+            <SectionHead>
+              <SectionTitleRow>
+                <SectionIcon $isDark={isDarkMode}>
+                  <Icon size={16}>
+                    <path d="M6 3h9l4 4v14H6z" />
+                    <path d="M9 12h7M9 16h5" />
+                  </Icon>
+                </SectionIcon>
+                <SectionTitle $isDark={isDarkMode}>Opis pojazdu</SectionTitle>
+              </SectionTitleRow>
+            </SectionHead>
+            <DescriptionBody>
+              {car.detailedDescription.map((paragraph) => (
+                <DescriptionParagraph $isDark={isDarkMode} key={paragraph}>
+                  {paragraph}
+                </DescriptionParagraph>
+              ))}
+            </DescriptionBody>
+          </SectionCard>
+          <SectionCard $isDark={isDarkMode}>
+            <SectionHead>
+              <SectionTitleRow>
+                <SectionIcon $isDark={isDarkMode}>
+                  <Icon size={16}>
+                    <path d="M4 7h16M6 12h12M8 17h8" />
+                  </Icon>
+                </SectionIcon>
+                <SectionTitle $isDark={isDarkMode}>Wyposażenie</SectionTitle>
+              </SectionTitleRow>
+              {car.equipmentSections.length > 3 ? (
+                <ExpandButton
+                  type="button"
+                  $isDark={isDarkMode}
+                  onClick={() => setShowFullEquipment((prev) => !prev)}
+                >
+                  {showFullEquipment ? "Pokaż mniej" : "Więcej"}
+                </ExpandButton>
+              ) : null}
+            </SectionHead>
+            <EquipmentGrid>
+              {visibleEquipmentSections.map((section) => (
+                <EquipmentSection key={section.title} $isDark={isDarkMode}>
+                  <EquipmentSectionTitle $isDark={isDarkMode}>{section.title}</EquipmentSectionTitle>
+                  <EquipmentList $isDark={isDarkMode}>
+                    {section.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </EquipmentList>
+                </EquipmentSection>
+              ))}
+            </EquipmentGrid>
+          </SectionCard>
+        </DetailsGrid>
       </Wrap>
       <SiteFooter isDarkMode={isDarkMode} />
       {contactCar ? (
-        <ModalOverlay $isDark={isDarkMode} onClick={() => setContactCar(null)}>
-          <ModalCard
-            $isDark={isDarkMode}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="contact-modal-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <ModalHead>
-              <ModalTitle id="contact-modal-title">Skontaktuj się z nami</ModalTitle>
-              <CloseButton type="button" $isDark={isDarkMode} onClick={() => setContactCar(null)}>
-                Zamknij
-              </CloseButton>
-            </ModalHead>
-            <ModalText $isDark={isDarkMode}>
-              Wybierz preferowaną formę kontaktu dla auta: <strong>{contactCar}</strong>
-            </ModalText>
-            <ContactActions>
-              <ContactLink $isDark={isDarkMode} href={`mailto:kontakt@carmentor.pl?subject=${emailSubject}`}>
-                kontakt@carmentor.pl
-              </ContactLink>
-              <ContactLink $isDark={isDarkMode} href="tel:+48660488900">
-                +48 660 488 900
-              </ContactLink>
-            </ContactActions>
-          </ModalCard>
-        </ModalOverlay>
+        <ContactModal
+          isDarkMode={isDarkMode}
+          carName={contactCar}
+          onClose={() => setContactCar(null)}
+        />
       ) : null}
     </Page>
   );

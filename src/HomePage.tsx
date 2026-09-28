@@ -1,8 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCars, VW_TIGUAN, type CarOffer } from "./cars";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
+import {
+  CarTag,
+  Card,
+  ContactModal,
+  Container,
+  Icon,
+  IconBadge,
+  PrimaryButton,
+  SectionDesc,
+  SectionHead,
+  SectionTitle,
+} from "./components/ui";
+import {
+  accent,
+  accentSoft,
+  border,
+  cardShadow,
+  cardShadowHover,
+  surface,
+  surfaceMuted,
+  textBody,
+  textMuted,
+  textStrong,
+  type ThemeProps,
+} from "./theme";
 
 type Step = {
   num: string;
@@ -38,6 +63,7 @@ type Service = {
   desc: string;
   cta: string;
   to: string;
+  icon: ReactNode;
 };
 
 const SERVICES: Service[] = [
@@ -46,363 +72,393 @@ const SERVICES: Service[] = [
     desc: "Sprawdzone samochody dostępne od razu. Transparentnie pokazujemy stan i historię oraz prowadzimy Cię przez formalności. Pomagamy również w finansowaniu (kredyt/leasing).",
     cta: "Poznaj proces zakupu",
     to: "/jak-dzialamy",
+    icon: (
+      <Icon>
+        <path d="M5 17h14l-1.5-6.5A2 2 0 0 0 15.6 9H8.4a2 2 0 0 0-1.9 1.5z" />
+        <circle cx="7.5" cy="17.5" r="1.5" />
+        <circle cx="16.5" cy="17.5" r="1.5" />
+      </Icon>
+    ),
   },
   {
     title: "Wyszukanie auta na zamówienie",
     desc: "Szukamy auta pod Twoje wymagania i budżet. Weryfikujemy egzemplarz, omawiamy ryzyka i pomagamy w negocjacjach oraz zakupie. Wsparcie w finansowaniu (kredyt/leasing) w pakiecie.",
     cta: "Umów konsultację",
     to: "/kontakt",
+    icon: (
+      <Icon>
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </Icon>
+    ),
   },
   {
     title: "Komis – sprzedaż Twojego samochodu",
     desc: "Zajmujemy się sprzedażą Twojego samochodu od A do Z: oferta, ogłoszenia, prezentacje i negocjacje. Ułatwiamy transakcję także przez pomoc kupującym w finansowaniu.",
     cta: "Oddaj auto w komis",
     to: "/kontakt",
+    icon: (
+      <Icon>
+        <path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" />
+        <circle cx="7.5" cy="7.5" r="1.5" />
+      </Icon>
+    ),
   },
   {
     title: "Broker aut nowych",
     desc: "Pomagamy w zakupie nowych aut marek wolumenowych. Negocjujemy warunki i przeprowadzamy Cię przez cały proces zamówienia.",
     cta: "Dowiedz się więcej",
     to: "/kontakt",
+    icon: (
+      <Icon>
+        <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z" />
+      </Icon>
+    ),
   },
 ];
-
-const ACCENT_COLOR = "#00573F";
-const ACCENT_COLOR_DARK = "#33c39b";
 
 const Page = styled.div`
   min-height: 100vh;
 `;
 
-const Section = styled.section`
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
+const HeroSection = styled(Container)`
+  padding-top: 24px;
+  margin-bottom: 96px;
 
   @media (max-width: 767px) {
-    width: calc(100% - 28px);
+    padding-top: 14px;
+    margin-bottom: 64px;
   }
 `;
 
-const PrimaryButton = styled.a`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  padding: 11px 18px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  background: ${ACCENT_COLOR};
-  color: white;
-  border: 1px solid ${ACCENT_COLOR};
+const Hero = styled.div<ThemeProps>`
+  position: relative;
+  overflow: hidden;
+  min-height: min(78vh, 700px);
+  border-radius: 32px;
+  display: flex;
+  align-items: flex-end;
+  box-shadow: ${cardShadow};
+
+  @media (max-width: 767px) {
+    min-height: 620px;
+    border-radius: 22px;
+  }
 `;
 
-const SecondaryButton = styled(PrimaryButton)`
-  background: white;
-  color: ${ACCENT_COLOR};
-  border-color: ${ACCENT_COLOR};
+const HeroImage = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
-const Hero = styled(Section)`
-  margin-top: 50px;
-  margin-bottom: 70px;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 40px;
+const HeroShade = styled.div`
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(4, 12, 9, 0.88) 0%, rgba(4, 12, 9, 0.35) 45%, rgba(4, 12, 9, 0.05) 75%),
+    linear-gradient(to right, rgba(4, 12, 9, 0.45), transparent 60%);
+`;
+
+const HeroContent = styled.div`
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 56px;
 
   @media (max-width: 1023px) {
-    margin-top: 32px;
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 32px;
+  }
+
+  @media (max-width: 767px) {
+    padding: 28px 22px;
+    gap: 24px;
   }
 `;
 
-const HeroCard = styled.div<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d8d8d8")};
-  border-radius: 28px;
-  padding: 42px;
-
-  @media (max-width: 767px) {
-    padding: 30px 22px;
-    border-radius: 20px;
-  }
+const HeroCopy = styled.div`
+  max-width: 640px;
+  color: #ffffff;
 `;
 
 const HeroTitle = styled.h1`
-  font-size: clamp(2rem, 3.6vw, 3.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin-bottom: 16px;
+  font-size: clamp(2.3rem, 5.4vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+  margin-bottom: 18px;
 `;
 
-const HeroText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#c0cbc8" : "#515151")};
-  font-size: 1.06rem;
+const HeroText = styled.p`
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1.12rem;
   line-height: 1.6;
-  max-width: 56ch;
+  max-width: 50ch;
 `;
 
 const CtaRow = styled.div`
   margin-top: 30px;
   display: flex;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 `;
 
-const HeroImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 28px;
+const HeroGhostButton = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(10px);
 
-  @media (max-width: 1023px) {
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: 350px;
-    border-radius: 20px;
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
   }
 `;
 
-const SectionHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  margin-bottom: 24px;
+const FeaturedCard = styled(Link)`
+  flex-shrink: 0;
+  display: grid;
+  gap: 10px;
+  width: min(320px, 100%);
+  padding: 20px;
+  border-radius: 20px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(14px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
 
   @media (max-width: 767px) {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    display: none;
   }
 `;
 
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
+const FeaturedName = styled.p`
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+`;
+
+const FeaturedPrice = styled.p`
+  font-size: 1.5rem;
+  font-weight: 800;
   letter-spacing: -0.02em;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
 `;
 
-const SectionDesc = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5e5e5e")};
-  max-width: 48ch;
-`;
+const CarsSection = styled(Container)`
+  margin-bottom: 104px;
 
-const CarsSection = styled(Section)`
-  margin-bottom: 78px;
+  @media (max-width: 767px) {
+    margin-bottom: 72px;
+  }
 `;
 
 const CarsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
 `;
 
-const SimpleCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dcdcdc")};
-  border-radius: 20px;
+const CarCard = styled.article<ThemeProps>`
+  background: ${surface};
+  border: 1px solid ${border};
+  border-radius: 24px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: ${cardShadow};
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    border-color: ${({ $isDark }) => ($isDark ? "#3d5a52" : "#b9cdc6")};
+    transform: translateY(-4px);
+    box-shadow: ${cardShadowHover};
   }
 
   &:hover img {
-    transform: scale(1.03);
+    transform: scale(1.05);
   }
 `;
 
-const SimpleImage = styled.img`
+const CarImageFrame = styled.div<ThemeProps>`
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: ${surfaceMuted};
+`;
+
+const CarImage = styled.img`
   width: 100%;
-  height: 230px;
+  height: 100%;
   object-fit: cover;
-  transition: transform 0.28s ease;
+  transition: transform 0.5s ease;
 `;
 
-const SimpleBody = styled.div`
-  padding: 16px;
+const CarImageTag = styled.div`
+  position: absolute;
+  top: 16px;
+  left: 16px;
 `;
 
-const CarDescription = styled.p<{ $isDark: boolean }>`
-  margin-top: 10px;
-  color: ${({ $isDark }) => ($isDark ? "#b8c5c1" : "#4f5d58")};
-  line-height: 1.5;
-  font-size: 0.95rem;
-`;
-
-const Tag = styled.span`
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 99px;
-  padding: 6px 10px;
-  color: ${ACCENT_COLOR};
-  background: #d7efe8;
-  border: 1px solid #b6ddd1;
-  margin-bottom: 10px;
-`;
-
-const CarName = styled.h3`
-  font-size: clamp(1.5rem, 2vw, 1.85rem);
-  margin-bottom: 10px;
-`;
-
-const Meta = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aab5b1" : "#666")};
-  font-size: 0.96rem;
-`;
-
-const Price = styled.p`
-  margin-top: 14px;
-  margin-bottom: 18px;
-  font-size: 1.35rem;
-  font-weight: 800;
-`;
-
-const CardButton = styled.button<{ $isDark: boolean }>`
-  display: inline-flex;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid
-    ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  color: ${({ $isDark }) => ($isDark ? "#0c1613" : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : "transparent")};
-  border-radius: 11px;
-  padding: 10px 14px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-`;
-
-const ModalOverlay = styled.div<{ $isDark: boolean }>`
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: ${({ $isDark }) =>
-    $isDark ? "rgba(6, 10, 9, 0.74)" : "rgba(0, 0, 0, 0.45)"};
-`;
-
-const ModalCard = styled.div<{ $isDark: boolean }>`
-  width: min(520px, 100%);
-  border-radius: 18px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#335048" : "#d5ddd9")};
-  background: ${({ $isDark }) => ($isDark ? "#14201c" : "white")};
-  color: ${({ $isDark }) => ($isDark ? "#eff4f2" : "#19201d")};
-  padding: 22px;
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
-`;
-
-const ModalHead = styled.div`
+const CarBody = styled.div`
   display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  flex: 1;
+  padding: 22px 22px 24px;
 `;
 
-const ModalTitle = styled.h3`
-  font-size: 1.2rem;
-`;
-
-const CloseButton = styled.button<{ $isDark: boolean }>`
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#44635a" : "#cad4d0")};
-  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f7faf9")};
-  color: ${({ $isDark }) => ($isDark ? "#d8e4e0" : "#1d2a26")};
-  border-radius: 10px;
-  font-size: 0.9rem;
+const CarBrand = styled.span<ThemeProps>`
+  font-size: 0.76rem;
   font-weight: 700;
-  padding: 8px 11px;
-  cursor: pointer;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${accent};
+  margin-bottom: 6px;
 `;
 
-const ModalText = styled.p<{ $isDark: boolean }>`
-  margin-top: 12px;
-  margin-bottom: 16px;
-  color: ${({ $isDark }) => ($isDark ? "#c6d4cf" : "#43514c")};
-  line-height: 1.5;
+const CarName = styled.h3<ThemeProps>`
+  font-size: 1.35rem;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: ${textStrong};
+  margin-bottom: 14px;
 `;
 
-const ContactActions = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+const SpecChips = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
 
-  @media (max-width: 560px) {
-    grid-template-columns: 1fr;
+const SpecChip = styled.span<ThemeProps>`
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: ${textBody};
+  background: ${surfaceMuted};
+`;
+
+const CarDescription = styled.p<ThemeProps>`
+  margin-top: 14px;
+  color: ${textBody};
+  line-height: 1.6;
+  font-size: 0.94rem;
+  flex: 1;
+`;
+
+const CarFooter = styled.div<ThemeProps>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid ${border};
+
+  @media (max-width: 420px) {
+    flex-direction: column;
+    align-items: stretch;
   }
 `;
 
-const ContactLink = styled.a<{ $isDark: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  border-radius: 12px;
-  border: 1px solid
-    ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? "#1f332d" : "#eaf6f2")};
-  color: ${({ $isDark }) => ($isDark ? "#e8f4ef" : ACCENT_COLOR)};
-  font-weight: 700;
+const Price = styled.p<ThemeProps>`
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: ${textStrong};
 `;
 
-const ServicesSection = styled(Section)`
-  margin-bottom: 78px;
+const EmptyState = styled.p<ThemeProps>`
+  color: ${textMuted};
+`;
+
+const ServicesSection = styled(Container)`
+  margin-bottom: 104px;
+
+  @media (max-width: 767px) {
+    margin-bottom: 72px;
+  }
 `;
 
 const ServicesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
 
   @media (max-width: 767px) {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 `;
 
-const ServiceCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
-  border-radius: 16px;
-  padding: 22px;
+const ServiceCard = styled(Card)`
   display: flex;
   flex-direction: column;
+  gap: 16px;
 `;
 
-const ServiceTitle = styled.h3`
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+const ServiceTitle = styled.h3<ThemeProps>`
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: ${textStrong};
 `;
 
-const ServiceText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
-  line-height: 1.55;
+const ServiceText = styled.p<ThemeProps>`
+  color: ${textBody};
+  line-height: 1.65;
   flex: 1;
-  margin-bottom: 16px;
 `;
 
-const ServiceLink = styled(Link)<{ $isDark: boolean }>`
-  font-size: 0.9rem;
+const ServiceLink = styled(Link)<ThemeProps>`
+  align-self: flex-start;
+  font-size: 0.92rem;
   font-weight: 700;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+  color: ${accent};
+  padding: 8px 14px;
+  margin-left: -14px;
+  border-radius: 999px;
+
+  &:hover {
+    background: ${accentSoft};
+  }
 `;
 
-const StepsSection = styled(Section)`
-  margin-bottom: 90px;
+const StepsSection = styled(Container)`
+  margin-bottom: 104px;
+
+  @media (max-width: 767px) {
+    margin-bottom: 72px;
+  }
 `;
 
 const StepsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
 
   @media (max-width: 1023px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -410,30 +466,34 @@ const StepsGrid = styled.div`
 
   @media (max-width: 767px) {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 `;
 
-const StepCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
-  border-radius: 16px;
-  padding: 22px;
+const StepCard = styled(Card)`
+  position: relative;
+  overflow: hidden;
 `;
 
-const StepNum = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  font-size: 0.8rem;
-  margin-bottom: 12px;
-  font-weight: 700;
+const StepNum = styled.p<ThemeProps>`
+  font-size: 3rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: ${accent};
+  opacity: 0.9;
+  margin-bottom: 18px;
 `;
 
-const StepTitle = styled.h3`
+const StepTitle = styled.h3<ThemeProps>`
+  font-size: 1.1rem;
+  color: ${textStrong};
   margin-bottom: 8px;
 `;
 
-const StepDesc = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
-  line-height: 1.55;
+const StepDesc = styled.p<ThemeProps>`
+  color: ${textBody};
+  line-height: 1.6;
 `;
 
 type HomePageProps = {
@@ -452,66 +512,47 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
       .catch(() => setCars([VW_TIGUAN]));
   }, []);
 
-  useEffect(() => {
-    if (!contactCar) {
-      return;
-    }
-
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setContactCar(null);
-      }
-    };
-
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
-  }, [contactCar]);
-
-  const emailSubject = contactCar
-    ? encodeURIComponent(`Zapytanie o auto: ${contactCar}`)
-    : encodeURIComponent("Zapytanie o auto");
   const featured = cars[0] ?? VW_TIGUAN;
 
   return (
     <Page>
       <SiteNavigation isDarkMode={isDarkMode} onToggleTheme={onToggleTheme} />
 
-      <Hero>
-        <HeroCard $isDark={isDarkMode}>
-          <HeroTitle>Profesjonalne wsparcie przy zakupie auta.</HeroTitle>
-          <HeroText $isDark={isDarkMode}>
-            Auta od ręki, komis i auta na zamówienie. Jasne zasady, rzetelna
-            weryfikacja, bez niespodzianek.
-          </HeroText>
-          <CtaRow>
-            <PrimaryButton href="#stock">Zobacz ofertę</PrimaryButton>
-            <SecondaryButton as={Link} to={`/samochod/${featured.slug}`}>
-              Zobacz samochód
-            </SecondaryButton>
-          </CtaRow>
-        </HeroCard>
-        <HeroImage
-          src={featured.gallery[1] ?? featured.gallery[0]}
-          alt={`${featured.brand} ${featured.model}`}
-        />
-      </Hero>
-
-      <ServicesSection id="services">
-        <SectionHead>
-          <SectionTitle $isDark={isDarkMode}>Nasze usługi</SectionTitle>
-        </SectionHead>
-        <ServicesGrid>
-          {SERVICES.map((service) => (
-            <ServiceCard key={service.title} $isDark={isDarkMode}>
-              <ServiceTitle>{service.title}</ServiceTitle>
-              <ServiceText $isDark={isDarkMode}>{service.desc}</ServiceText>
-              <ServiceLink to={service.to} $isDark={isDarkMode}>
-                {service.cta} →
-              </ServiceLink>
-            </ServiceCard>
-          ))}
-        </ServicesGrid>
-      </ServicesSection>
+      <HeroSection>
+        <Hero $isDark={isDarkMode}>
+          <HeroImage
+            src={featured.gallery[1] ?? featured.gallery[0]}
+            alt={`${featured.brand} ${featured.model}`}
+          />
+          <HeroShade />
+          <HeroContent>
+            <HeroCopy>
+              <HeroTitle>Profesjonalne wsparcie przy zakupie auta.</HeroTitle>
+              <HeroText>
+                Auta od ręki, komis i auta na zamówienie. Jasne zasady, rzetelna
+                weryfikacja, bez niespodzianek.
+              </HeroText>
+              <CtaRow>
+                <PrimaryButton as="a" href="#stock" $isDark>
+                  Zobacz ofertę
+                </PrimaryButton>
+                <HeroGhostButton to={`/samochod/${featured.slug}`}>
+                  Zobacz samochód
+                </HeroGhostButton>
+              </CtaRow>
+            </HeroCopy>
+            <FeaturedCard to={`/samochod/${featured.slug}`} aria-hidden="true" tabIndex={-1}>
+              <div>
+                <CarTag>{featured.tag}</CarTag>
+              </div>
+              <FeaturedName>
+                {featured.brand} {featured.model}
+              </FeaturedName>
+              <FeaturedPrice>{featured.price}</FeaturedPrice>
+            </FeaturedCard>
+          </HeroContent>
+        </Hero>
+      </HeroSection>
 
       <CarsSection id="stock">
         <SectionHead>
@@ -522,11 +563,11 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
           </SectionDesc>
         </SectionHead>
         {cars.length === 0 ? (
-          <p>Aktualnie brak aut w ofercie.</p>
+          <EmptyState $isDark={isDarkMode}>Aktualnie brak aut w ofercie.</EmptyState>
         ) : (
           <CarsGrid>
             {cars.map((car) => (
-              <SimpleCard
+              <CarCard
                 key={car.slug}
                 $isDark={isDarkMode}
                 role="link"
@@ -540,38 +581,59 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
                 }}
                 aria-label={`Przejdz do karty auta ${car.brand} ${car.model}`}
               >
-                <SimpleImage
-                  src={car.gallery[0]}
-                  alt={`${car.brand} ${car.model}`}
-                />
-                <SimpleBody>
-                  <Tag>{car.tag}</Tag>
-                  <CarName>
-                    {car.brand} {car.model}
-                  </CarName>
-                  <Meta $isDark={isDarkMode}>
-                    {car.year} • {car.engine} • {car.power}
-                  </Meta>
-                  <CarDescription $isDark={isDarkMode}>
-                    {car.description}
-                  </CarDescription>
-                  <Price>{car.price}</Price>
-                  <CardButton
-                    type="button"
-                    $isDark={isDarkMode}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setContactCar(`${car.brand} ${car.model}`);
-                    }}
-                  >
-                    Zapytaj o to auto
-                  </CardButton>
-                </SimpleBody>
-              </SimpleCard>
+                <CarImageFrame $isDark={isDarkMode}>
+                  <CarImage src={car.gallery[0]} alt={`${car.brand} ${car.model}`} />
+                  <CarImageTag>
+                    <CarTag>{car.tag}</CarTag>
+                  </CarImageTag>
+                </CarImageFrame>
+                <CarBody>
+                  <CarBrand $isDark={isDarkMode}>{car.brand}</CarBrand>
+                  <CarName $isDark={isDarkMode}>{car.model}</CarName>
+                  <SpecChips>
+                    <SpecChip $isDark={isDarkMode}>{car.year}</SpecChip>
+                    <SpecChip $isDark={isDarkMode}>{car.engine}</SpecChip>
+                    <SpecChip $isDark={isDarkMode}>{car.power}</SpecChip>
+                  </SpecChips>
+                  <CarDescription $isDark={isDarkMode}>{car.description}</CarDescription>
+                  <CarFooter $isDark={isDarkMode}>
+                    <Price $isDark={isDarkMode}>{car.price}</Price>
+                    <PrimaryButton
+                      type="button"
+                      $isDark={isDarkMode}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setContactCar(`${car.brand} ${car.model}`);
+                      }}
+                    >
+                      Zapytaj o to auto
+                    </PrimaryButton>
+                  </CarFooter>
+                </CarBody>
+              </CarCard>
             ))}
           </CarsGrid>
         )}
       </CarsSection>
+
+      <ServicesSection id="services">
+        <SectionHead>
+          <SectionTitle $isDark={isDarkMode}>Nasze usługi</SectionTitle>
+        </SectionHead>
+        <ServicesGrid>
+          {SERVICES.map((service) => (
+            <ServiceCard key={service.title} $isDark={isDarkMode}>
+              <IconBadge $isDark={isDarkMode}>{service.icon}</IconBadge>
+              <ServiceTitle $isDark={isDarkMode}>{service.title}</ServiceTitle>
+              <ServiceText $isDark={isDarkMode}>{service.desc}</ServiceText>
+              <ServiceLink to={service.to} $isDark={isDarkMode}>
+                {service.cta} →
+              </ServiceLink>
+            </ServiceCard>
+          ))}
+        </ServicesGrid>
+      </ServicesSection>
+
       <StepsSection id="how">
         <SectionHead>
           <SectionTitle $isDark={isDarkMode}>Jak działamy</SectionTitle>
@@ -584,7 +646,7 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
           {STEPS.map((step) => (
             <StepCard key={step.num} $isDark={isDarkMode}>
               <StepNum $isDark={isDarkMode}>{step.num}</StepNum>
-              <StepTitle>{step.title}</StepTitle>
+              <StepTitle $isDark={isDarkMode}>{step.title}</StepTitle>
               <StepDesc $isDark={isDarkMode}>{step.desc}</StepDesc>
             </StepCard>
           ))}
@@ -593,43 +655,11 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
 
       <SiteFooter isDarkMode={isDarkMode} />
       {contactCar ? (
-        <ModalOverlay $isDark={isDarkMode} onClick={() => setContactCar(null)}>
-          <ModalCard
-            $isDark={isDarkMode}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="contact-modal-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <ModalHead>
-              <ModalTitle id="contact-modal-title">
-                Skontaktuj się z nami
-              </ModalTitle>
-              <CloseButton
-                type="button"
-                $isDark={isDarkMode}
-                onClick={() => setContactCar(null)}
-              >
-                Zamknij
-              </CloseButton>
-            </ModalHead>
-            <ModalText $isDark={isDarkMode}>
-              Wybierz preferowaną formę kontaktu dla auta:{" "}
-              <strong>{contactCar}</strong>
-            </ModalText>
-            <ContactActions>
-              <ContactLink
-                $isDark={isDarkMode}
-                href={`mailto:kontakt@carmentor.pl?subject=${emailSubject}`}
-              >
-                kontakt@carmentor.pl
-              </ContactLink>
-              <ContactLink $isDark={isDarkMode} href="tel:+48660488900">
-                +48 660 488 900
-              </ContactLink>
-            </ContactActions>
-          </ModalCard>
-        </ModalOverlay>
+        <ContactModal
+          isDarkMode={isDarkMode}
+          carName={contactCar}
+          onClose={() => setContactCar(null)}
+        />
       ) : null}
     </Page>
   );

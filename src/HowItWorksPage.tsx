@@ -2,10 +2,30 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
+import {
+  Container,
+  Icon,
+  IconBadge,
+  PageIntro,
+  PrimaryButton,
+  SectionDesc,
+  SectionHead,
+  SectionTitle,
+} from "./components/ui";
+import {
+  accent,
+  accentSoft,
+  border,
+  borderStrong,
+  cardShadow,
+  pick,
+  surface,
+  surfaceMuted,
+  textBody,
+  textStrong,
+  type ThemeProps,
+} from "./theme";
 import workImg from "./assets/work.png";
-
-const ACCENT_COLOR = "#00573F";
-const ACCENT_COLOR_DARK = "#33c39b";
 
 type ProcessStep = {
   title: string;
@@ -134,135 +154,88 @@ const PROCESSES: Process[] = [
   },
 ];
 
+const VERIFY_ITEMS = [
+  "VIN i historię pojazdu",
+  "Szkody i naprawy",
+  "Przebieg i spójność dokumentów",
+  "Serwis i stan eksploatacyjny",
+  "Komplet dokumentów do zakupu",
+];
+
 const Page = styled.div`
   min-height: 100vh;
 `;
 
-const Section = styled.section`
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
+const ContentSection = styled(Container)`
+  margin-bottom: 96px;
 
   @media (max-width: 767px) {
-    width: calc(100% - 28px);
+    margin-bottom: 64px;
   }
-`;
-
-const IntroSection = styled(Section)`
-  margin-top: 50px;
-  margin-bottom: 70px;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 40px;
-
-  @media (max-width: 1023px) {
-    margin-top: 32px;
-    grid-template-columns: 1fr;
-  }
-`;
-
-const IntroCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d8d8d8")};
-  border-radius: 28px;
-  padding: 42px;
-
-  @media (max-width: 767px) {
-    padding: 30px 22px;
-    border-radius: 20px;
-  }
-`;
-
-const PageTitle = styled.h1`
-  font-size: clamp(2rem, 3.6vw, 3.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin-bottom: 16px;
-`;
-
-const IntroText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#c0cbc8" : "#515151")};
-  font-size: 1.06rem;
-  line-height: 1.6;
-  max-width: 62ch;
-`;
-
-const IntroImage = styled.img`
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: 350px;
-  object-fit: cover;
-  border-radius: 28px;
-
-  @media (max-width: 767px) {
-    border-radius: 20px;
-  }
-`;
-
-const ContentSection = styled(Section)`
-  margin-bottom: 78px;
-`;
-
-const SectionHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  margin-bottom: 24px;
-`;
-
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
-  letter-spacing: -0.02em;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-`;
-
-const SectionDesc = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5e5e5e")};
-  max-width: 48ch;
 `;
 
 const AccordionList = styled.div`
   display: grid;
-  gap: 10px;
+  gap: 14px;
 `;
 
-const AccordionItem = styled.article<{ $isDark: boolean; $isOpen: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid
-    ${({ $isDark, $isOpen }) =>
-      $isOpen
-        ? $isDark
-          ? "#3d5a52"
-          : "#b9cdc6"
-        : $isDark
-        ? "#2f3f39"
-        : "#dadada"};
-  border-radius: 16px;
+const AccordionItem = styled.article<ThemeProps & { $isOpen: boolean }>`
+  background: ${surface};
+  border: 1px solid ${({ $isOpen, $isDark }) => ($isOpen ? borderStrong({ $isDark }) : border({ $isDark }))};
+  border-radius: 22px;
   overflow: hidden;
-  transition: border-color 0.2s ease;
+  box-shadow: ${({ $isOpen, $isDark }) => ($isOpen ? cardShadow({ $isDark }) : "none")};
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 `;
 
-const AccordionHeader = styled.button<{ $isDark: boolean }>`
+const AccordionHeader = styled.button<ThemeProps>`
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
+  gap: 18px;
+  padding: 22px 26px;
   background: transparent;
   border: none;
   cursor: pointer;
   text-align: left;
-  color: inherit;
+  color: ${textStrong};
+  font: inherit;
+
+  @media (max-width: 767px) {
+    padding: 18px;
+    gap: 14px;
+  }
+`;
+
+const AccordionIndex = styled.span<ThemeProps & { $isOpen: boolean }>`
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: ${({ $isOpen, $isDark }) => ($isOpen ? pick("#08130f", "#ffffff")({ $isDark }) : accent({ $isDark }))};
+  background: ${({ $isOpen, $isDark }) => ($isOpen ? accent({ $isDark }) : accentSoft({ $isDark }))};
+  transition: background 0.25s ease, color 0.25s ease;
 `;
 
 const AccordionTitle = styled.h3`
-  font-size: 1.1rem;
+  flex: 1;
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+  letter-spacing: -0.01em;
 `;
 
-const ChevronIcon = styled.svg<{ $isOpen: boolean }>`
+const ChevronIcon = styled.svg<ThemeProps & { $isOpen: boolean }>`
   flex-shrink: 0;
-  color: ${ACCENT_COLOR};
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border-radius: 999px;
+  color: ${accent};
+  background: ${surfaceMuted};
   transition: transform 0.28s ease;
   transform: ${({ $isOpen }) => ($isOpen ? "rotate(180deg)" : "rotate(0deg)")};
 `;
@@ -278,14 +251,19 @@ const AccordionBodyInner = styled.div`
 `;
 
 const AccordionBody = styled.div`
-  padding: 0 22px 22px;
+  padding: 4px 26px 26px;
+
+  @media (max-width: 767px) {
+    padding: 0 18px 18px;
+  }
 `;
 
-const StepsGrid = styled.div`
+const StepsGrid = styled.ol`
+  list-style: none;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 14px;
 
   @media (max-width: 1023px) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -296,98 +274,96 @@ const StepsGrid = styled.div`
   }
 `;
 
-const StepCard = styled.div<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#111918" : "#f8faf9")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#e4ecea")};
-  border-radius: 12px;
-  padding: 14px 16px;
+const StepCard = styled.li<ThemeProps>`
+  background: ${surfaceMuted};
+  border-radius: 16px;
+  padding: 18px;
 `;
 
-const StepNum = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
+const StepNum = styled.p<ThemeProps>`
+  color: ${accent};
   font-size: 0.78rem;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
 `;
 
-const StepTitle = styled.h4`
-  font-size: 0.95rem;
+const StepTitle = styled.h4<ThemeProps>`
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: ${textStrong};
   margin-bottom: 6px;
 `;
 
-const StepDesc = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
+const StepDesc = styled.p<ThemeProps>`
+  color: ${textBody};
   font-size: 0.88rem;
-  line-height: 1.5;
-`;
-
-const ResultCard = styled.div<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#111918" : "#f8faf9")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#e4ecea")};
-  border-radius: 12px;
-  padding: 12px 16px;
-`;
-
-const ResultText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
-  font-size: 0.9rem;
-  line-height: 1.5;
-`;
-
-const VerifyCard = styled.div<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
-  border-radius: 16px;
-  padding: 22px;
-`;
-
-const VerifyList = styled.ul<{ $isDark: boolean }>`
-  padding: 4px 4px 4px 22px;
-  display: grid;
-  gap: 8px;
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5b5b5b")};
   line-height: 1.55;
 `;
 
-const CtaCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d8d8d8")};
+const ResultCard = styled.div<ThemeProps>`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: ${accentSoft};
   border-radius: 16px;
-  padding: 22px;
+  padding: 16px 18px;
+`;
+
+const ResultText = styled.p<ThemeProps>`
+  color: ${textStrong};
+  font-size: 0.95rem;
+  line-height: 1.55;
+`;
+
+const VerifyGrid = styled.ul`
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+`;
+
+const VerifyItem = styled.li<ThemeProps>`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid ${border};
+  background: ${surface};
+  box-shadow: ${cardShadow};
+  color: ${textStrong};
+  font-weight: 600;
+  line-height: 1.4;
+`;
+
+const CtaBanner = styled.article<ThemeProps>`
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 32px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(51, 195, 155, 0.35), transparent 45%),
+    ${pick("#10231c", "#00573F")};
 
   @media (max-width: 767px) {
     flex-direction: column;
     align-items: flex-start;
+    padding: 28px 22px;
+    border-radius: 20px;
   }
 `;
 
-const CtaText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#c0cbc8" : "#515151")};
-  line-height: 1.5;
-`;
-
-const CtaLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  padding: 11px 18px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  background: ${ACCENT_COLOR};
-  color: white;
-  border: 1px solid ${ACCENT_COLOR};
-  white-space: nowrap;
-`;
-
-const CtaLinkDark = styled(CtaLink)`
-  background: ${ACCENT_COLOR_DARK};
-  color: #0c1613;
-  border-color: ${ACCENT_COLOR_DARK};
+const CtaText = styled.p`
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 62ch;
+  color: rgba(255, 255, 255, 0.9);
 `;
 
 type HowItWorksPageProps = {
@@ -400,23 +376,21 @@ export default function HowItWorksPage({
   onToggleTheme,
 }: HowItWorksPageProps) {
   const [activeIdx, setActiveIdx] = useState<number>(0);
-  const Cta = isDarkMode ? CtaLinkDark : CtaLink;
 
   return (
     <Page>
       <SiteNavigation isDarkMode={isDarkMode} onToggleTheme={onToggleTheme} />
 
-      <IntroSection>
-        <IntroCard $isDark={isDarkMode}>
-          <PageTitle>Jak działamy</PageTitle>
-          <IntroText $isDark={isDarkMode}>
-            CarMentor prowadzi klienta od pierwszego zapytania do bezpiecznego
-            zakupu lub sprzedaży. Wybierz usługę, żeby zobaczyć szczegółowy
-            proces współpracy.
-          </IntroText>
-        </IntroCard>
-        <IntroImage src={workImg} alt="Konsultacja CarMentor" />
-      </IntroSection>
+      <PageIntro
+        isDarkMode={isDarkMode}
+        title="Jak działamy"
+        image={workImg}
+        imageAlt="Konsultacja CarMentor"
+      >
+        CarMentor prowadzi klienta od pierwszego zapytania do bezpiecznego
+        zakupu lub sprzedaży. Wybierz usługę, żeby zobaczyć szczegółowy
+        proces współpracy.
+      </PageIntro>
 
       <ContentSection>
         <SectionHead>
@@ -439,11 +413,13 @@ export default function HowItWorksPage({
                   onClick={() => setActiveIdx(isOpen ? -1 : i)}
                   aria-expanded={isOpen}
                 >
+                  <AccordionIndex $isDark={isDarkMode} $isOpen={isOpen}>
+                    {String(i + 1).padStart(2, "0")}
+                  </AccordionIndex>
                   <AccordionTitle>{process.title}</AccordionTitle>
                   <ChevronIcon
+                    $isDark={isDarkMode}
                     $isOpen={isOpen}
-                    width="18"
-                    height="18"
                     viewBox="0 0 18 18"
                     fill="none"
                     aria-hidden="true"
@@ -466,7 +442,7 @@ export default function HowItWorksPage({
                             <StepNum $isDark={isDarkMode}>
                               {String(j + 1).padStart(2, "0")}
                             </StepNum>
-                            <StepTitle>{step.title}</StepTitle>
+                            <StepTitle $isDark={isDarkMode}>{step.title}</StepTitle>
                             <StepDesc $isDark={isDarkMode}>
                               {step.desc}
                             </StepDesc>
@@ -474,6 +450,11 @@ export default function HowItWorksPage({
                         ))}
                       </StepsGrid>
                       <ResultCard $isDark={isDarkMode}>
+                        <IconBadge $isDark={isDarkMode}>
+                          <Icon>
+                            <path d="M20 6 9 17l-5-5" />
+                          </Icon>
+                        </IconBadge>
                         <ResultText $isDark={isDarkMode}>
                           <strong>Rezultat:</strong> {process.result}
                         </ResultText>
@@ -491,27 +472,33 @@ export default function HowItWorksPage({
         <SectionHead>
           <SectionTitle $isDark={isDarkMode}>Co sprawdzamy</SectionTitle>
         </SectionHead>
-        <VerifyCard $isDark={isDarkMode}>
-          <VerifyList $isDark={isDarkMode}>
-            <li>VIN i historię pojazdu</li>
-            <li>Szkody i naprawy</li>
-            <li>Przebieg i spójność dokumentów</li>
-            <li>Serwis i stan eksploatacyjny</li>
-            <li>Komplet dokumentów do zakupu</li>
-          </VerifyList>
-        </VerifyCard>
+        <VerifyGrid>
+          {VERIFY_ITEMS.map((item) => (
+            <VerifyItem key={item} $isDark={isDarkMode}>
+              <IconBadge $isDark={isDarkMode}>
+                <Icon>
+                  <path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6z" />
+                  <path d="m9 12 2 2 4-4" />
+                </Icon>
+              </IconBadge>
+              {item}
+            </VerifyItem>
+          ))}
+        </VerifyGrid>
       </ContentSection>
 
       <ContentSection>
-        <CtaCard $isDark={isDarkMode}>
-          <CtaText $isDark={isDarkMode}>
+        <CtaBanner $isDark={isDarkMode}>
+          <CtaText>
             Stawiamy na bezpieczeństwo zakupu i przejrzyste zasady. Weryfikujemy
             samochód, pokazujemy fakty i jasno mówimy, czy to dobry wybór.
             Prowadzimy Cię przez cały proces - od wyboru po finalizację,
             spokojnie i bez ryzyka.
           </CtaText>
-          <Cta to="/kontakt">Umów konsultację</Cta>
-        </CtaCard>
+          <PrimaryButton as={Link} to="/kontakt" $isDark>
+            Umów konsultację
+          </PrimaryButton>
+        </CtaBanner>
       </ContentSection>
 
       <SiteFooter isDarkMode={isDarkMode} />

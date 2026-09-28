@@ -1,169 +1,119 @@
 import styled from "styled-components";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
+import {
+  Card,
+  Container,
+  Icon,
+  IconBadge,
+  PageIntro,
+  PrimaryButton,
+  SectionDesc,
+  SectionHead,
+  SectionTitle,
+} from "./components/ui";
+import {
+  ACCENT_COLOR,
+  ACCENT_COLOR_DARK,
+  accent,
+  border,
+  surfaceMuted,
+  textBody,
+  textMuted,
+  textStrong,
+  type ThemeProps,
+} from "./theme";
 import contactImg from "./assets/contact.jpg";
-
-const ACCENT_COLOR = "#00573F";
-const ACCENT_COLOR_DARK = "#33c39b";
 
 const Page = styled.div`
   min-height: 100vh;
 `;
 
-const Section = styled.section`
-  width: min(1200px, calc(100% - 48px));
-  margin: 0 auto;
+const ContentSection = styled(Container)`
+  margin-bottom: 96px;
 
   @media (max-width: 767px) {
-    width: calc(100% - 28px);
+    margin-bottom: 64px;
   }
-`;
-
-const IntroSection = styled(Section)`
-  margin-top: 50px;
-  margin-bottom: 70px;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 40px;
-
-  @media (max-width: 1023px) {
-    margin-top: 32px;
-    grid-template-columns: 1fr;
-  }
-`;
-
-const IntroCard = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#d8d8d8")};
-  border-radius: 28px;
-  padding: 42px;
-
-  @media (max-width: 767px) {
-    padding: 30px 22px;
-    border-radius: 20px;
-  }
-`;
-
-const PageTitle = styled.h1`
-  font-size: clamp(2rem, 3.6vw, 3.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  margin-bottom: 16px;
-`;
-
-const IntroText = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#c0cbc8" : "#515151")};
-  font-size: 1.06rem;
-  line-height: 1.6;
-  max-width: 56ch;
-`;
-
-const IntroImage = styled.img`
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: 350px;
-  object-fit: cover;
-  border-radius: 28px;
-
-  @media (max-width: 767px) {
-    border-radius: 20px;
-  }
-`;
-
-const ContentSection = styled(Section)`
-  margin-bottom: 78px;
-`;
-
-const SectionHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 20px;
-  margin-bottom: 24px;
-`;
-
-const SectionTitle = styled.h2<{ $isDark: boolean }>`
-  font-size: clamp(1.5rem, 2.4vw, 2.2rem);
-  letter-spacing: -0.02em;
-  color: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-`;
-
-const SectionDesc = styled.p<{ $isDark: boolean }>`
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5e5e5e")};
-  max-width: 48ch;
 `;
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 16px;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 24px;
+  align-items: start;
 
   @media (max-width: 980px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const Card = styled.article<{ $isDark: boolean }>`
-  background: ${({ $isDark }) => ($isDark ? "#161f1c" : "white")};
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
-  border-radius: 16px;
-  padding: 22px;
+const FormCard = styled(Card)`
+  padding: 36px;
+
+  @media (max-width: 767px) {
+    padding: 22px;
+  }
 `;
 
-const CardTitle = styled.h3`
-  font-size: 1.1rem;
-  margin-bottom: 14px;
+const CardTitle = styled.h3<ThemeProps>`
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  color: ${textStrong};
+  margin-bottom: 22px;
 `;
 
 const FormGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 18px 16px;
 
   @media (max-width: 700px) {
     grid-template-columns: 1fr;
   }
 `;
 
-const Field = styled.label`
+const Field = styled.label<ThemeProps>`
   display: grid;
-  gap: 6px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  color: inherit;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: ${textBody};
 `;
 
 const inputBase = (isDark: boolean) => `
-  border-radius: 10px;
-  border: 1px solid ${isDark ? "#2f3f39" : "#dde5e2"};
-  background: ${isDark ? "#1a2622" : "#f8faf9"};
-  color: ${isDark ? "#e4eeea" : "#1f2b27"};
-  padding: 13px 14px;
-  font-size: 0.95rem;
+  border-radius: 12px;
+  border: 1px solid ${isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(15, 35, 28, 0.1)"};
+  background: ${isDark ? "#1a2522" : "#f4f7f6"};
+  color: ${isDark ? "#eef3f1" : "#111a17"};
+  padding: 14px 16px;
+  font-size: 0.97rem;
   font-weight: 400;
   width: 100%;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 
   &:focus {
     outline: none;
-    border-color: ${isDark ? "#33c39b" : "#00573F"};
+    border-color: ${isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR};
+    background: ${isDark ? "#141c19" : "#ffffff"};
+    box-shadow: 0 0 0 4px ${isDark ? "rgba(51, 195, 155, 0.16)" : "rgba(0, 87, 63, 0.1)"};
   }
 
   &::placeholder {
-    color: ${isDark ? "#5a7069" : "#a0b0ab"};
+    color: ${isDark ? "#5f716b" : "#9aa8a3"};
   }
 `;
 
-const Input = styled.input<{ $isDark: boolean }>`
+const Input = styled.input<ThemeProps>`
   ${({ $isDark }) => inputBase($isDark)}
 `;
 
-const Select = styled.select<{ $isDark: boolean }>`
+const Select = styled.select<ThemeProps>`
   ${({ $isDark }) => inputBase($isDark)}
 `;
 
-const TextArea = styled.textarea<{ $isDark: boolean }>`
+const TextArea = styled.textarea<ThemeProps>`
   ${({ $isDark }) => inputBase($isDark)}
-  min-height: 120px;
+  min-height: 140px;
   resize: vertical;
 `;
 
@@ -171,15 +121,18 @@ const Full = styled.div`
   grid-column: 1 / -1;
 `;
 
-const Submit = styled.button<{ $isDark: boolean }>`
-  border-radius: 12px;
-  border: 1px solid
-    ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  background: ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
-  color: ${({ $isDark }) => ($isDark ? "#10221b" : "white")};
-  font-weight: 800;
-  padding: 11px 18px;
-  cursor: pointer;
+const Submit = styled(PrimaryButton)`
+  width: 100%;
+  margin-top: 4px;
+`;
+
+const QuickCard = styled(Card)`
+  position: sticky;
+  top: 104px;
+
+  @media (max-width: 980px) {
+    position: static;
+  }
 `;
 
 const ContactList = styled.div`
@@ -187,19 +140,33 @@ const ContactList = styled.div`
   gap: 10px;
 `;
 
-const ContactItem = styled.a<{ $isDark: boolean }>`
-  border-radius: 12px;
-  border: 1px solid ${({ $isDark }) => ($isDark ? "#2f3f39" : "#dadada")};
-  padding: 11px 14px;
-  background: ${({ $isDark }) => ($isDark ? "#1b2a25" : "#f9fcfb")};
-  color: ${({ $isDark }) => ($isDark ? "#dce8e4" : "#264038")};
+const ContactItem = styled.a<ThemeProps>`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 16px;
+  padding: 14px;
+  background: ${surfaceMuted};
+  color: ${textStrong};
   font-weight: 700;
+
+  &::after {
+    content: "→";
+    margin-left: auto;
+    color: ${accent};
+  }
+
+  &:hover {
+    color: ${accent};
+  }
 `;
 
-const Small = styled.p<{ $isDark: boolean }>`
-  margin-top: 12px;
-  color: ${({ $isDark }) => ($isDark ? "#aeb8b4" : "#5e5e5e")};
-  line-height: 1.55;
+const Small = styled.p<ThemeProps>`
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid ${border};
+  color: ${textMuted};
+  line-height: 1.65;
 `;
 
 type ContactPageProps = {
@@ -215,17 +182,16 @@ export default function ContactPage({
     <Page>
       <SiteNavigation isDarkMode={isDarkMode} onToggleTheme={onToggleTheme} />
 
-      <IntroSection>
-        <IntroCard $isDark={isDarkMode}>
-          <PageTitle>Kontakt</PageTitle>
-          <IntroText $isDark={isDarkMode}>
-            Zostaw kontakt i kilka informacji - oddzwonimy, dopytamy o potrzeby
-            i zaproponujemy najlepsze rozwiązanie. Auta od ręki, komis,
-            wyszukiwanie na zamówienie i nowe auta.
-          </IntroText>
-        </IntroCard>
-        <IntroImage src={contactImg} alt="Konsultacja CarMentor" />
-      </IntroSection>
+      <PageIntro
+        isDarkMode={isDarkMode}
+        title="Kontakt"
+        image={contactImg}
+        imageAlt="Konsultacja CarMentor"
+      >
+        Zostaw kontakt i kilka informacji - oddzwonimy, dopytamy o potrzeby
+        i zaproponujemy najlepsze rozwiązanie. Auta od ręki, komis,
+        wyszukiwanie na zamówienie i nowe auta.
+      </PageIntro>
 
       <ContentSection>
         <SectionHead>
@@ -235,14 +201,14 @@ export default function ContactPage({
           </SectionDesc>
         </SectionHead>
         <Grid>
-          <Card $isDark={isDarkMode}>
-            <CardTitle>Formularz leadowy</CardTitle>
+          <FormCard $isDark={isDarkMode}>
+            <CardTitle $isDark={isDarkMode}>Formularz leadowy</CardTitle>
             <FormGrid>
-              <Field>
+              <Field $isDark={isDarkMode}>
                 Telefon
                 <Input $isDark={isDarkMode} type="tel" placeholder="+48..." />
               </Field>
-              <Field>
+              <Field $isDark={isDarkMode}>
                 Email
                 <Input
                   $isDark={isDarkMode}
@@ -250,7 +216,7 @@ export default function ContactPage({
                   placeholder="kontakt@email.pl"
                 />
               </Field>
-              <Field>
+              <Field $isDark={isDarkMode}>
                 Forma
                 <Select $isDark={isDarkMode} defaultValue="">
                   <option value="" disabled>
@@ -260,7 +226,7 @@ export default function ContactPage({
                   <option>Firma</option>
                 </Select>
               </Field>
-              <Field>
+              <Field $isDark={isDarkMode}>
                 Miasto
                 <Input
                   $isDark={isDarkMode}
@@ -268,7 +234,7 @@ export default function ContactPage({
                   placeholder="np. Warszawa"
                 />
               </Field>
-              <Field>
+              <Field $isDark={isDarkMode}>
                 Usługa
                 <Select $isDark={isDarkMode} defaultValue="">
                   <option value="" disabled>
@@ -281,7 +247,7 @@ export default function ContactPage({
                   <option>Sprawdzenie ogłoszenia</option>
                 </Select>
               </Field>
-              <Field>
+              <Field $isDark={isDarkMode}>
                 Budżet
                 <Input
                   $isDark={isDarkMode}
@@ -289,16 +255,18 @@ export default function ContactPage({
                   placeholder="np. 90 000 zł"
                 />
               </Field>
-              <Field style={{ gridColumn: "1 / -1" }}>
-                Link do ogłoszenia (opcjonalnie)
-                <Input
-                  $isDark={isDarkMode}
-                  type="url"
-                  placeholder="https://..."
-                />
-              </Field>
               <Full>
-                <Field>
+                <Field $isDark={isDarkMode}>
+                  Link do ogłoszenia (opcjonalnie)
+                  <Input
+                    $isDark={isDarkMode}
+                    type="url"
+                    placeholder="https://..."
+                  />
+                </Field>
+              </Full>
+              <Full>
+                <Field $isDark={isDarkMode}>
                   Dodatkowe informacje
                   <TextArea
                     $isDark={isDarkMode}
@@ -312,24 +280,40 @@ export default function ContactPage({
                 </Submit>
               </Full>
             </FormGrid>
-          </Card>
+          </FormCard>
 
-          <Card $isDark={isDarkMode}>
-            <CardTitle>Szybki kontakt</CardTitle>
+          <QuickCard $isDark={isDarkMode}>
+            <CardTitle $isDark={isDarkMode}>Szybki kontakt</CardTitle>
             <ContactList>
               <ContactItem $isDark={isDarkMode} href="tel:+48660488900">
+                <IconBadge $isDark={isDarkMode}>
+                  <Icon>
+                    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z" />
+                  </Icon>
+                </IconBadge>
                 Zadzwoń: +48 660 488 900
               </ContactItem>
               <ContactItem
                 $isDark={isDarkMode}
                 href="mailto:kontakt@carmentor.pl"
               >
+                <IconBadge $isDark={isDarkMode}>
+                  <Icon>
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="m3 7 9 6 9-6" />
+                  </Icon>
+                </IconBadge>
                 Email: kontakt@carmentor.pl
               </ContactItem>
               <ContactItem
                 $isDark={isDarkMode}
                 href="https://wa.me/48660488900"
               >
+                <IconBadge $isDark={isDarkMode}>
+                  <Icon>
+                    <path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z" />
+                  </Icon>
+                </IconBadge>
                 WhatsApp: napisz teraz
               </ContactItem>
             </ContactList>
@@ -339,7 +323,7 @@ export default function ContactPage({
               dobry wybór. Prowadzimy Cię przez cały proces - od wyboru po
               finalizację, spokojnie i bez ryzyka.
             </Small>
-          </Card>
+          </QuickCard>
         </Grid>
       </ContentSection>
 

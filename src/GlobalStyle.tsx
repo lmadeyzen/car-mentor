@@ -1,7 +1,5 @@
 import { createGlobalStyle } from "styled-components";
-
-const ACCENT_COLOR = "#00573F";
-const ACCENT_COLOR_DARK = "#33c39b";
+import { ACCENT_COLOR, ACCENT_COLOR_DARK } from "./theme";
 
 export const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
   *, *::before, *::after { 
@@ -17,8 +15,8 @@ export const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
   body {
     font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     font-size: 16px;
-    color: ${({ $isDark }) => ($isDark ? "#f0f3f2" : "#161616")};
-    background: ${({ $isDark }) => ($isDark ? "#0f1513" : "#f5f5f5")};
+    color: ${({ $isDark }) => ($isDark ? "#eef3f1" : "#111a17")};
+    background: ${({ $isDark }) => ($isDark ? "#0b110f" : "#f3f5f4")};
     transition: background-color 0.25s ease, color 0.25s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -31,6 +29,10 @@ export const GlobalStyle = createGlobalStyle<{ $isDark: boolean }>`
   :focus-visible {
     outline: 3px solid ${({ $isDark }) => ($isDark ? ACCENT_COLOR_DARK : ACCENT_COLOR)};
     outline-offset: 2px;
+  }
+
+  ::selection {
+    background: ${({ $isDark }) => ($isDark ? "rgba(51, 195, 155, 0.35)" : "rgba(0, 87, 63, 0.18)")};
   }
   
   a { 
