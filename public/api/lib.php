@@ -605,28 +605,60 @@ function save_uploaded_images(string $slug, array $files): array
 
     $count = count($files['name']);
     for ($i = 0; $i < $count; $i++) {
-        if ((int) ($files['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        $errorCode = (int) ($files['error'][$i] ?? UPLOAD_ERR_NO_FILE);
+        $context = [
+            'index' => $i,
+            'slug' => $slug,
+            'name' => (string) ($files['name'][$i] ?? ''),
+            'type' => (string) ($files['type'][$i] ?? ''),
+            'size' => (int) ($files['size'][$i] ?? 0),
+            'error' => $errorCode,
+            'upload_max_filesize' => (string) ini_get('upload_max_filesize'),
+            'post_max_size' => (string) ini_get('post_max_size'),
+            'file_uploads' => (string) ini_get('file_uploads'),
+            'upload_tmp_dir' => (string) (ini_get('upload_tmp_dir') ?: sys_get_temp_dir()),
+            'uploads_dir' => UPLOADS_DIR,
+            'uploads_writable' => is_dir(UPLOADS_DIR) ? is_writable(UPLOADS_DIR) : false,
+        ];
+
+        if ($errorCode === UPLOAD_ERR_NO_FILE) {
             continue;
         }
-        if ((int) ($files['error'][$i] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
-            throw new RuntimeException('Upload zdjęcia nie powiódł się.');
+        if ($errorCode !== UPLOAD_ERR_OK) {
+            $message = upload_error_message($errorCode);
+            upload_debug_log('Image upload failed: PHP error', ['message' => $message] + $context);
+            throw new RuntimeException(
+                'Upload zdjęcia nie powiódł się. ' . $message
+                . ' (szczegóły w api/data/upload-debug.log)'
+            );
         }
         if ((int) ($files['size'][$i] ?? 0) > MAX_UPLOAD_BYTES) {
+            upload_debug_log('Image upload failed: app size limit', $context);
             throw new RuntimeException('Zdjęcie jest za duże (max 8 MB).');
         }
 
         $tmp = (string) ($files['tmp_name'][$i] ?? '');
         $info = $tmp !== '' ? getimagesize($tmp) : false;
         if ($info === false || !isset(ALLOWED_IMAGE_TYPES[$info['mime']])) {
+            upload_debug_log('Image upload failed: invalid image type', [
+                'detected_mime' => is_array($info) ? ($info['mime'] ?? null) : null,
+            ] + $context);
             throw new RuntimeException('Dozwolone są tylko JPG, PNG i WebP.');
         }
 
         $name = $slug . '-' . date('YmdHis') . '-' . ($i + 1) . '.' . ALLOWED_IMAGE_TYPES[$info['mime']];
         $dest = $folder . '/' . $name;
         if (!move_uploaded_file($tmp, $dest)) {
+            upload_debug_log('Image upload failed: move_uploaded_file', [
+                'dest' => $dest,
+                'folder_writable' => is_writable($folder),
+                'tmp_exists' => is_file($tmp),
+                'is_uploaded_file' => is_uploaded_file($tmp),
+            ] + $context);
             throw new RuntimeException('Nie mogę zapisać zdjęcia na dysku.');
         }
 
+        upload_debug_log('Image upload saved', ['dest' => $dest] + $context);
         $saved[] = '/uploads/cars/' . $slug . '/' . $name;
     }
 
