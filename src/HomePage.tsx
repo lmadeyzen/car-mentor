@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+import heroFallback from "./assets/pexels-gustavo-fring-4173194.jpg";
 import { fetchCars, VW_TIGUAN, type CarOffer } from "./cars";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 import {
@@ -28,6 +29,9 @@ import {
   textStrong,
   type ThemeProps,
 } from "./theme";
+
+const HERO_ROTATE_MS = 5000;
+const HERO_FADE_MS = 1100;
 
 type Step = {
   num: string;
@@ -146,20 +150,95 @@ const Hero = styled.div<ThemeProps>`
   }
 `;
 
-const HeroImage = styled.img`
+const HeroSlide = styled.img<{ $active: boolean }>`
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: ${({ $active }) => ($active ? 1 : 0)};
+  transform: scale(${({ $active }) => ($active ? 1.04 : 1)});
+  transition:
+    opacity ${HERO_FADE_MS}ms ease,
+    transform ${HERO_ROTATE_MS}ms ease-out;
+  will-change: opacity, transform;
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity 0.2s ease;
+    transform: none;
+  }
 `;
 
 const HeroShade = styled.div`
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to top, rgba(4, 12, 9, 0.88) 0%, rgba(4, 12, 9, 0.35) 45%, rgba(4, 12, 9, 0.05) 75%),
+    linear-gradient(
+      to top,
+      rgba(4, 12, 9, 0.88) 0%,
+      rgba(4, 12, 9, 0.35) 45%,
+      rgba(4, 12, 9, 0.05) 75%
+    ),
     linear-gradient(to right, rgba(4, 12, 9, 0.45), transparent 60%);
+`;
+
+const featuredFadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const FeaturedFade = styled.div`
+  display: grid;
+  gap: 10px;
+  animation: ${featuredFadeIn} 0.75s ease both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+const HeroDots = styled.div`
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 22px;
+  display: flex;
+  gap: 8px;
+  transform: translateX(-50%);
+
+  @media (max-width: 767px) {
+    bottom: 16px;
+  }
+`;
+
+const HeroDot = styled.button<{ $active: boolean }>`
+  width: ${({ $active }) => ($active ? "22px" : "8px")};
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  background: ${({ $active }) =>
+    $active ? "rgba(255, 255, 255, 0.95)" : "rgba(255, 255, 255, 0.35)"};
+  transition:
+    width 0.35s ease,
+    background 0.35s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.75);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: background 0.2s ease;
+    width: 8px;
+  }
 `;
 
 const HeroContent = styled.div`
@@ -291,7 +370,9 @@ const CarCard = styled.article<ThemeProps>`
   flex-direction: column;
   cursor: pointer;
   box-shadow: ${cardShadow};
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 
   &:hover {
     transform: translateY(-4px);
@@ -501,69 +582,154 @@ type HomePageProps = {
   onToggleTheme: () => void;
 };
 
+function heroImageFor(car: CarOffer): string {
+  return car.gallery[1] ?? car.gallery[0] ?? "";
+}
+
 export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
   const navigate = useNavigate();
   const [contactCar, setContactCar] = useState<string | null>(null);
   const [cars, setCars] = useState<CarOffer[]>([VW_TIGUAN]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [heroPaused, setHeroPaused] = useState(false);
 
   useEffect(() => {
     fetchCars()
-      .then(setCars)
-      .catch(() => setCars([VW_TIGUAN]));
+      .then((next) => {
+        setCars(next);
+        setActiveIndex(0);
+      })
+      .catch(() => {
+        setCars([VW_TIGUAN]);
+        setActiveIndex(0);
+      });
   }, []);
 
-  const featured = cars[0] ?? VW_TIGUAN;
+  useEffect(() => {
+    if (cars.length <= 1 || heroPaused) return;
+
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    const id = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % cars.length);
+    }, HERO_ROTATE_MS);
+
+    return () => window.clearInterval(id);
+  }, [cars.length, heroPaused, activeIndex]);
+
+  const featured = cars[activeIndex] ?? null;
+  const hasCars = cars.length > 0;
 
   return (
     <Page>
       <SiteNavigation isDarkMode={isDarkMode} onToggleTheme={onToggleTheme} />
 
       <HeroSection>
-        <Hero $isDark={isDarkMode}>
-          <HeroImage
-            src={featured.gallery[1] ?? featured.gallery[0]}
-            alt={`${featured.brand} ${featured.model}`}
-          />
+        <Hero
+          $isDark={isDarkMode}
+          onMouseEnter={() => setHeroPaused(true)}
+          onMouseLeave={() => setHeroPaused(false)}
+          onFocusCapture={() => setHeroPaused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+              setHeroPaused(false);
+            }
+          }}
+        >
+          {hasCars ? (
+            cars.map((car, index) => (
+              <HeroSlide
+                key={car.slug}
+                src={heroImageFor(car)}
+                alt=""
+                aria-hidden={index !== activeIndex}
+                $active={index === activeIndex}
+              />
+            ))
+          ) : (
+            <HeroSlide
+              src={heroFallback}
+              alt=""
+              aria-hidden="true"
+              $active
+            />
+          )}
           <HeroShade />
           <HeroContent>
             <HeroCopy>
               <HeroTitle>Profesjonalne wsparcie przy zakupie auta.</HeroTitle>
               <HeroText>
-                Auta od ręki, komis i auta na zamówienie. Jasne zasady, rzetelna
-                weryfikacja, bez niespodzianek.
+                {hasCars
+                  ? "Auta od ręki, komis i auta na zamówienie. Jasne zasady, rzetelna weryfikacja, bez niespodzianek."
+                  : "Aktualnie kompletujemy ofertę. W międzyczasie pomożemy znaleźć auto na zamówienie albo przyjąć Twoje w komis."}
               </HeroText>
               <CtaRow>
                 <PrimaryButton as="a" href="#stock" $isDark>
                   Zobacz ofertę
                 </PrimaryButton>
-                <HeroGhostButton to={`/samochod/${featured.slug}`}>
-                  Zobacz samochód
-                </HeroGhostButton>
+                {featured ? (
+                  <HeroGhostButton to={`/samochod/${featured.slug}`}>
+                    Zobacz samochód
+                  </HeroGhostButton>
+                ) : (
+                  <HeroGhostButton to="/kontakt">
+                    Umów konsultację
+                  </HeroGhostButton>
+                )}
               </CtaRow>
             </HeroCopy>
-            <FeaturedCard to={`/samochod/${featured.slug}`} aria-hidden="true" tabIndex={-1}>
-              <div>
-                <CarTag>{featured.tag}</CarTag>
-              </div>
-              <FeaturedName>
-                {featured.brand} {featured.model}
-              </FeaturedName>
-              <FeaturedPrice>{featured.price}</FeaturedPrice>
-            </FeaturedCard>
+            {featured ? (
+              <FeaturedCard
+                to={`/samochod/${featured.slug}`}
+                aria-label={`${featured.brand} ${featured.model}, ${featured.price}`}
+              >
+                <FeaturedFade key={featured.slug}>
+                  <div>
+                    <CarTag>{featured.tag}</CarTag>
+                  </div>
+                  <FeaturedName>
+                    {featured.brand} {featured.model}
+                  </FeaturedName>
+                  <FeaturedPrice>{featured.price}</FeaturedPrice>
+                </FeaturedFade>
+              </FeaturedCard>
+            ) : null}
           </HeroContent>
+          {cars.length > 1 ? (
+            <HeroDots role="tablist" aria-label="Samochody w ofercie">
+              {cars.map((car, index) => (
+                <HeroDot
+                  key={car.slug}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === activeIndex}
+                  aria-label={`${car.brand} ${car.model}`}
+                  $active={index === activeIndex}
+                  onClick={() => setActiveIndex(index)}
+                />
+              ))}
+            </HeroDots>
+          ) : null}
         </Hero>
       </HeroSection>
 
       <CarsSection id="stock">
         <SectionHead>
-          <SectionTitle $isDark={isDarkMode}>Oferta na dziś</SectionTitle>
+          <SectionTitle $isDark={isDarkMode}>
+            Samochody dostępne od ręki
+          </SectionTitle>
           <SectionDesc $isDark={isDarkMode}>
             Sprawdzone auta gotowe do rozmowy. Każde ogłoszenie prowadzi do
             osobnej karty pojazdu ze zdjęciami i pełnym opisem.
           </SectionDesc>
         </SectionHead>
         {cars.length === 0 ? (
-          <EmptyState $isDark={isDarkMode}>Aktualnie brak aut w ofercie.</EmptyState>
+          <EmptyState $isDark={isDarkMode}>
+            Aktualnie brak aut w ofercie.
+          </EmptyState>
         ) : (
           <CarsGrid>
             {cars.map((car) => (
@@ -582,7 +748,10 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
                 aria-label={`Przejdz do karty auta ${car.brand} ${car.model}`}
               >
                 <CarImageFrame $isDark={isDarkMode}>
-                  <CarImage src={car.gallery[0]} alt={`${car.brand} ${car.model}`} />
+                  <CarImage
+                    src={car.gallery[0]}
+                    alt={`${car.brand} ${car.model}`}
+                  />
                   <CarImageTag>
                     <CarTag>{car.tag}</CarTag>
                   </CarImageTag>
@@ -595,7 +764,9 @@ export default function HomePage({ isDarkMode, onToggleTheme }: HomePageProps) {
                     <SpecChip $isDark={isDarkMode}>{car.engine}</SpecChip>
                     <SpecChip $isDark={isDarkMode}>{car.power}</SpecChip>
                   </SpecChips>
-                  <CarDescription $isDark={isDarkMode}>{car.description}</CarDescription>
+                  <CarDescription $isDark={isDarkMode}>
+                    {car.description}
+                  </CarDescription>
                   <CarFooter $isDark={isDarkMode}>
                     <Price $isDark={isDarkMode}>{car.price}</Price>
                     <PrimaryButton

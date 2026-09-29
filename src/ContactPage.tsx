@@ -1,3 +1,4 @@
+import { useState, type FormEvent } from "react";
 import styled from "styled-components";
 import { SiteFooter, SiteNavigation } from "./components/SiteChrome";
 import {
@@ -124,6 +125,34 @@ const Full = styled.div`
 const Submit = styled(PrimaryButton)`
   width: 100%;
   margin-top: 4px;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+`;
+
+const Honeypot = styled.div`
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+`;
+
+const FormStatus = styled.p<{ $tone: "ok" | "error" } & ThemeProps>`
+  margin-top: 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: ${({ $tone, $isDark }) =>
+    $tone === "ok"
+      ? $isDark
+        ? "#6ee7b7"
+        : ACCENT_COLOR
+      : $isDark
+        ? "#fca5a5"
+        : "#b42318"};
 `;
 
 const QuickCard = styled(Card)`
@@ -174,10 +203,75 @@ type ContactPageProps = {
   onToggleTheme: () => void;
 };
 
+type FormStatusState =
+  | { tone: "ok"; text: string }
+  | { tone: "error"; text: string }
+  | null;
+
 export default function ContactPage({
   isDarkMode,
   onToggleTheme,
 }: ContactPageProps) {
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<FormStatusState>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (sending) return;
+
+    const form = event.currentTarget;
+    const data = new FormData(form);
+
+    setSending(true);
+    setStatus(null);
+
+    try {
+      const response = await fetch("/api/contact.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: String(data.get("phone") ?? "").trim(),
+          email: String(data.get("email") ?? "").trim(),
+          clientType: String(data.get("clientType") ?? "").trim(),
+          city: String(data.get("city") ?? "").trim(),
+          service: String(data.get("service") ?? "").trim(),
+          budget: String(data.get("budget") ?? "").trim(),
+          listingUrl: String(data.get("listingUrl") ?? "").trim(),
+          message: String(data.get("message") ?? "").trim(),
+          website: String(data.get("website") ?? "").trim(),
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+      } | null;
+
+      if (!response.ok || !payload?.ok) {
+        setStatus({
+          tone: "error",
+          text:
+            payload?.error ??
+            "Nie udało się wysłać wiadomości. Spróbuj ponownie.",
+        });
+        return;
+      }
+
+      form.reset();
+      setStatus({
+        tone: "ok",
+        text: "Dziękujemy — odezwemy się w ciągu 24 h.",
+      });
+    } catch {
+      setStatus({
+        tone: "error",
+        text: "Brak połączenia z serwerem. Sprawdź sieć i spróbuj ponownie.",
+      });
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <Page>
       <SiteNavigation isDarkMode={isDarkMode} onToggleTheme={onToggleTheme} />
@@ -188,9 +282,9 @@ export default function ContactPage({
         image={contactImg}
         imageAlt="Konsultacja CarMentor"
       >
-        Zostaw kontakt i kilka informacji - oddzwonimy, dopytamy o potrzeby
-        i zaproponujemy najlepsze rozwiązanie. Auta od ręki, komis,
-        wyszukiwanie na zamówienie i nowe auta.
+        Zostaw kontakt i kilka informacji - oddzwonimy, dopytamy o potrzeby i
+        zaproponujemy najlepsze rozwiązanie. Auta od ręki, komis, wyszukiwanie
+        na zamówienie i nowe auta.
       </PageIntro>
 
       <ContentSection>
@@ -203,83 +297,122 @@ export default function ContactPage({
         <Grid>
           <FormCard $isDark={isDarkMode}>
             <CardTitle $isDark={isDarkMode}>Formularz leadowy</CardTitle>
-            <FormGrid>
-              <Field $isDark={isDarkMode}>
-                Telefon
-                <Input $isDark={isDarkMode} type="tel" placeholder="+48..." />
-              </Field>
-              <Field $isDark={isDarkMode}>
-                Email
-                <Input
-                  $isDark={isDarkMode}
-                  type="email"
-                  placeholder="kontakt@email.pl"
-                />
-              </Field>
-              <Field $isDark={isDarkMode}>
-                Forma
-                <Select $isDark={isDarkMode} defaultValue="">
-                  <option value="" disabled>
-                    Wybierz
-                  </option>
-                  <option>Osoba prywatna</option>
-                  <option>Firma</option>
-                </Select>
-              </Field>
-              <Field $isDark={isDarkMode}>
-                Miasto
-                <Input
-                  $isDark={isDarkMode}
-                  type="text"
-                  placeholder="np. Warszawa"
-                />
-              </Field>
-              <Field $isDark={isDarkMode}>
-                Usługa
-                <Select $isDark={isDarkMode} defaultValue="">
-                  <option value="" disabled>
-                    Wybierz
-                  </option>
-                  <option>Auta od ręki</option>
-                  <option>Auto używane na zamówienie</option>
-                  <option>Broker auta nowego</option>
-                  <option>Komis – sprzedaż auta</option>
-                  <option>Sprawdzenie ogłoszenia</option>
-                </Select>
-              </Field>
-              <Field $isDark={isDarkMode}>
-                Budżet
-                <Input
-                  $isDark={isDarkMode}
-                  type="text"
-                  placeholder="np. 90 000 zł"
-                />
-              </Field>
-              <Full>
+            <form onSubmit={handleSubmit}>
+              <FormGrid>
+                <Honeypot aria-hidden="true">
+                  <label>
+                    Website
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </label>
+                </Honeypot>
                 <Field $isDark={isDarkMode}>
-                  Link do ogłoszenia (opcjonalnie)
+                  Telefon
                   <Input
                     $isDark={isDarkMode}
-                    type="url"
-                    placeholder="https://..."
+                    name="phone"
+                    type="tel"
+                    placeholder="+48..."
+                    required
                   />
                 </Field>
-              </Full>
-              <Full>
                 <Field $isDark={isDarkMode}>
-                  Dodatkowe informacje
-                  <TextArea
+                  Email
+                  <Input
                     $isDark={isDarkMode}
-                    placeholder="Typ auta, rocznik, przebieg, paliwo, termin zakupu..."
+                    name="email"
+                    type="email"
+                    placeholder="biuro@carmentor.pl"
+                    required
                   />
                 </Field>
-              </Full>
-              <Full>
-                <Submit $isDark={isDarkMode} type="button">
-                  Wyślij zapytanie
-                </Submit>
-              </Full>
-            </FormGrid>
+                <Field $isDark={isDarkMode}>
+                  Forma
+                  <Select $isDark={isDarkMode} name="clientType" defaultValue="">
+                    <option value="" disabled>
+                      Wybierz
+                    </option>
+                    <option>Osoba prywatna</option>
+                    <option>Firma</option>
+                  </Select>
+                </Field>
+                <Field $isDark={isDarkMode}>
+                  Miasto
+                  <Input
+                    $isDark={isDarkMode}
+                    name="city"
+                    type="text"
+                    placeholder="np. Warszawa"
+                  />
+                </Field>
+                <Field $isDark={isDarkMode}>
+                  Usługa
+                  <Select
+                    $isDark={isDarkMode}
+                    name="service"
+                    defaultValue=""
+                    required
+                  >
+                    <option value="" disabled>
+                      Wybierz
+                    </option>
+                    <option>Auta od ręki</option>
+                    <option>Auto używane na zamówienie</option>
+                    <option>Broker auta nowego</option>
+                    <option>Komis – sprzedaż auta</option>
+                    <option>Sprawdzenie ogłoszenia</option>
+                  </Select>
+                </Field>
+                <Field $isDark={isDarkMode}>
+                  Budżet
+                  <Input
+                    $isDark={isDarkMode}
+                    name="budget"
+                    type="text"
+                    placeholder="np. 90 000 zł"
+                  />
+                </Field>
+                <Full>
+                  <Field $isDark={isDarkMode}>
+                    Link do ogłoszenia (opcjonalnie)
+                    <Input
+                      $isDark={isDarkMode}
+                      name="listingUrl"
+                      type="url"
+                      placeholder="https://..."
+                    />
+                  </Field>
+                </Full>
+                <Full>
+                  <Field $isDark={isDarkMode}>
+                    Dodatkowe informacje
+                    <TextArea
+                      $isDark={isDarkMode}
+                      name="message"
+                      placeholder="Typ auta, rocznik, przebieg, paliwo, termin zakupu..."
+                    />
+                  </Field>
+                </Full>
+                <Full>
+                  <Submit
+                    $isDark={isDarkMode}
+                    type="submit"
+                    disabled={sending}
+                  >
+                    {sending ? "Wysyłanie…" : "Wyślij zapytanie"}
+                  </Submit>
+                  {status ? (
+                    <FormStatus $isDark={isDarkMode} $tone={status.tone}>
+                      {status.text}
+                    </FormStatus>
+                  ) : null}
+                </Full>
+              </FormGrid>
+            </form>
           </FormCard>
 
           <QuickCard $isDark={isDarkMode}>
@@ -295,7 +428,7 @@ export default function ContactPage({
               </ContactItem>
               <ContactItem
                 $isDark={isDarkMode}
-                href="mailto:kontakt@carmentor.pl"
+                href="mailto:biuro@carmentor.pl"
               >
                 <IconBadge $isDark={isDarkMode}>
                   <Icon>
@@ -303,7 +436,7 @@ export default function ContactPage({
                     <path d="m3 7 9 6 9-6" />
                   </Icon>
                 </IconBadge>
-                Email: kontakt@carmentor.pl
+                Email: biuro@carmentor.pl
               </ContactItem>
               <ContactItem
                 $isDark={isDarkMode}

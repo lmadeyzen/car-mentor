@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-function admin_header(string $title, bool $nav = true): void
+/** @param list<string> $extraHead */
+function admin_header(string $title, bool $nav = true, array $extraHead = []): void
 {
     ?>
     <!DOCTYPE html>
@@ -11,6 +12,9 @@ function admin_header(string $title, bool $nav = true): void
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title><?= e($title) ?> · CarMentor admin</title>
         <link rel="stylesheet" href="/admin/styles.css" />
+        <?php foreach ($extraHead as $tag): ?>
+          <?= $tag ?>
+        <?php endforeach; ?>
       </head>
       <body>
         <div class="wrap">

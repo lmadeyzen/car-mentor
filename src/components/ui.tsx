@@ -100,7 +100,8 @@ export const PrimaryButton = styled.button<ThemeProps>`
   border: none;
   color: ${onAccent};
   background: ${accent};
-  box-shadow: 0 8px 20px ${pick("rgba(51, 195, 155, 0.22)", "rgba(0, 87, 63, 0.22)")};
+  box-shadow: 0 8px 20px
+    ${pick("rgba(51, 195, 155, 0.22)", "rgba(0, 87, 63, 0.22)")};
 
   &:hover {
     background: ${accentHover};
@@ -152,7 +153,13 @@ export const IconBadge = styled.span<ThemeProps>`
   background: ${accentSoft};
 `;
 
-export function Icon({ children, size = 18 }: { children: ReactNode; size?: number }) {
+export function Icon({
+  children,
+  size = 18,
+}: {
+  children: ReactNode;
+  size?: number;
+}) {
   return (
     <svg
       width={size}
@@ -220,7 +227,13 @@ type PageIntroProps = {
   children: ReactNode;
 };
 
-export function PageIntro({ isDarkMode, title, image, imageAlt, children }: PageIntroProps) {
+export function PageIntro({
+  isDarkMode,
+  title,
+  image,
+  imageAlt,
+  children,
+}: PageIntroProps) {
   return (
     <IntroGrid>
       <div>
@@ -320,7 +333,11 @@ type ContactModalProps = {
   onClose: () => void;
 };
 
-export function ContactModal({ isDarkMode, carName, onClose }: ContactModalProps) {
+export function ContactModal({
+  isDarkMode,
+  carName,
+  onClose,
+}: ContactModalProps) {
   useEffect(() => {
     const onEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -341,17 +358,23 @@ export function ContactModal({ isDarkMode, carName, onClose }: ContactModalProps
         onClick={(event) => event.stopPropagation()}
       >
         <ModalHead>
-          <ModalTitle id="contact-modal-title">Skontaktuj się z nami</ModalTitle>
+          <ModalTitle id="contact-modal-title">
+            Skontaktuj się z nami
+          </ModalTitle>
           <CloseButton type="button" $isDark={isDarkMode} onClick={onClose}>
             Zamknij
           </CloseButton>
         </ModalHead>
         <ModalText $isDark={isDarkMode}>
-          Wybierz preferowaną formę kontaktu dla auta: <strong>{carName}</strong>
+          Wybierz preferowaną formę kontaktu dla auta:{" "}
+          <strong>{carName}</strong>
         </ModalText>
         <ContactActions>
-          <ContactLink $isDark={isDarkMode} href={`mailto:kontakt@carmentor.pl?subject=${emailSubject}`}>
-            kontakt@carmentor.pl
+          <ContactLink
+            $isDark={isDarkMode}
+            href={`mailto:biuro@carmentor.pl?subject=${emailSubject}`}
+          >
+            biuro@carmentor.pl
           </ContactLink>
           <ContactLink $isDark={isDarkMode} href="tel:+48660488900">
             +48 660 488 900

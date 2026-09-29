@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:api": "php -S 127.0.0.1:8080 -t public public/router.php",
+    "dev:local": "API_TARGET=http://127.0.0.1:8080 vite",
+    "dev:api": "php -d upload_max_filesize=20M -d post_max_size=25M -S 127.0.0.1:8080 -t public public/router.php",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "dompurify": "^3.4.16",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",

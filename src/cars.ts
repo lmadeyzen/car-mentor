@@ -10,21 +10,75 @@ export type CarOffer = {
   model: string;
   year: number;
   description: string;
-  detailedDescription: string[];
-  equipmentSections: Array<{
-    title: string;
-    items: string[];
-  }>;
+  /** HTML z panelu (Quill). Legacy: tablica akapitów. */
+  detailedDescription: string | string[];
   engine: string;
   power: string;
   mileage: string;
   gearbox: string;
+  fuel?: string;
+  drive?: string;
+  /** Forma sprzedaży, np. Faktura VAT / Umowa kupna-sprzedaży. */
+  saleForm?: string;
+  originCountry?: string;
+  vin?: string;
+  offerFrom?: string;
+  registeredInPoland?: boolean;
+  registrationNumber?: string;
+  firstRegistrationDate?: string;
+  firstOwner?: boolean;
+  history?: string;
+  servicing?: string;
   price: string;
   otomotoUrl?: string;
+  /** URL do opcjonalnego PDF (historia serwisowa / CarVertical). */
+  documentPdf?: string;
+  documentType?: "service-history" | "car-vertical" | "";
   tag: "Od ręki" | "Sprawdzone";
   gallery: string[];
   published?: boolean;
 };
+
+export function documentDownloadLabel(
+  type: CarOffer["documentType"] | undefined,
+): string {
+  if (type === "car-vertical") {
+    return "Pobierz raport CarVertical";
+  }
+  if (type === "service-history") {
+    return "Pobierz historię serwisową";
+  }
+  return "Pobierz dokument PDF";
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+/** Normalizuje opis do HTML — obsługuje też stare tablice akapitów. */
+export function detailedDescriptionHtml(
+  value: string | string[] | undefined,
+): string {
+  if (Array.isArray(value)) {
+    return value
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean)
+      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .join("");
+  }
+  return typeof value === "string" ? value : "";
+}
+
+function normalizeCar(car: CarOffer): CarOffer {
+  return {
+    ...car,
+    detailedDescription: detailedDescriptionHtml(car.detailedDescription),
+  };
+}
 
 export async function fetchCars(): Promise<CarOffer[]> {
   const response = await fetch("/api/cars.php");
@@ -32,18 +86,22 @@ export async function fetchCars(): Promise<CarOffer[]> {
     throw new Error("Nie udało się pobrać oferty");
   }
   const data: unknown = await response.json();
-  return Array.isArray(data) ? (data as CarOffer[]) : [];
+  return Array.isArray(data)
+    ? (data as CarOffer[]).map(normalizeCar)
+    : [];
 }
 
 export async function fetchCar(slug: string): Promise<CarOffer | null> {
-  const response = await fetch(`/api/cars.php?slug=${encodeURIComponent(slug)}`);
+  const response = await fetch(
+    `/api/cars.php?slug=${encodeURIComponent(slug)}`,
+  );
   if (response.status === 404) {
     return null;
   }
   if (!response.ok) {
     throw new Error("Nie udało się pobrać auta");
   }
-  return (await response.json()) as CarOffer;
+  return normalizeCar((await response.json()) as CarOffer);
 }
 
 export const VW_TIGUAN: CarOffer = {
@@ -53,115 +111,20 @@ export const VW_TIGUAN: CarOffer = {
   year: 2017,
   description:
     "Komfortowy SUV z napedem 4Motion, dynamicznym silnikiem i automatyczna skrzynia DSG. Dobrze sprawdzi sie jako rodzinne auto na co dzien i na dluzsze trasy.",
-  detailedDescription: [
-    "Volkswagen Tiguan w wersji R-Line to propozycja dla kierowcy, ktory szuka praktycznego SUV-a, ale nie chce rezygnowac z dynamiki i dobrego prowadzenia. Nadwozie ma spokojna, elegancka linie, a pakiet stylistyczny R-Line nadaje autu nowoczesny i uporzadkowany wyglad.",
-    "Jednostka 2.0 TDI o mocy 240 KM i wysokim momencie 500 Nm dobrze wspolpracuje z automatyczna skrzynia DSG. W codziennej jezdzie oznacza to plynne ruszanie, wygodne wyprzedzanie i duzy zapas mocy na trasie. Naped 4Motion poprawia trakcje szczegolnie przy gorszej pogodzie i na slabszej nawierzchni.",
-    "Wnetrze Tiguana jest przestronne i funkcjonalne. Samochod sprawdzi sie zarowno jako auto rodzinne, jak i wygodny srodek transportu na dluzsze wyjazdy. To model, ktory laczy komfort, bezpieczenstwo i uniwersalnosc - bez zbednych kompromisow.",
-  ],
-  equipmentSections: [
-    {
-      title: "Pakiety i systemy",
-      items: [
-        "Pakiet Cargo",
-        "System Easy Open / Easy Close (otwieranie klapy \"wirtualny pedał\")",
-        "Pakiet Driver Assistance \"Plus\"",
-        "Pakiet Business Premium z systemem nawigacji",
-        "Pakiet Winter (podgrzewane przednie i tylne fotele)",
-        "Pakiet stylistyczny R-Line (Exterior i Interior)",
-        "Pakiet chrom",
-        "Pakiet oświetlenia bagażnika",
-        "Oświetlenie ambient",
-        "System Rear Assist z Park Assist",
-        "System rozpoznawania znaków drogowych",
-        "System utrzymania pasa ruchu, asystent zmiany pasa, asystent jazdy w korku, Emergency Assist",
-        "Front Assist z funkcją City ANB",
-        "Dynamiczny układ kierowniczy",
-        "Układ wspomagania zjazdu",
-        "Układ stabilizacji toru jazdy ESP",
-        "Napęd na cztery koła",
-        "Wybór profilu jazdy z regulacją tłumienia",
-      ],
-    },
-    {
-      title: "Koła i zawieszenie",
-      items: [
-        "Obręcze aluminiowe 20” (Suzuka / 8,5J x 20)",
-        "Śruby kół z zabezpieczeniem przeciwkradzieżowym",
-        "Opony bez określonej marki",
-        "Dodatkowy komplet opon zimowych",
-        "Stabilizator przód i tył",
-      ],
-    },
-    {
-      title: "Oświetlenie",
-      items: [
-        "Reflektory LED z dynamiczną regulacją i światłami skrętnymi",
-        "Światła dzienne z funkcją Coming Home",
-        "Tylne lampy LED",
-        "Reflektory przeciwmgłowe z funkcją doświetlania zakrętów",
-        "Automatyczna regulacja świateł",
-        "Czujnik zmierzchu i deszczu",
-        "Oświetlenie wnętrza (przestrzeń na nogi, lampki do czytania)",
-        "Oświetlenie bagażnika",
-      ],
-    },
-    {
-      title: "Komfort i wnętrze",
-      items: [
-        "Komfortowo-sportowe fotele",
-        "Ogrzewane przednie i tylne siedzenia (oddzielna regulacja)",
-        "Kierownica sportowa, wielofunkcyjna, skórzana (z Tiptronic)",
-        "Gałka zmiany biegów skórzana",
-        "Elektrycznie składane i podgrzewane lusterka zewnętrzne",
-        "Lusterko wewnętrzne automatycznie ściemniane",
-        "Centralny zamek Keyless Entry",
-        "Elektryczny hamulec postojowy",
-        "Relingi dachowe (srebrne)",
-        "Przyciemniane tylne szyby",
-        "Składana i dzielona tylna kanapa",
-        "Szuflady pod przednimi siedzeniami",
-        "Środkowy podłokietnik przód",
-        "Stoliki w oparciach tylnych siedzeń",
-        "Siatka w bagażniku",
-        "Komfortowa półka w podsufitce",
-        "Klimatyzacja (standardowa strefa klimatyczna)",
-      ],
-    },
-    {
-      title: "Multimedia i łączność",
-      items: [
-        "System nawigacji Discover Media",
-        "Radio Composition Media",
-        "Car-Net: Guide & Inform (3 lata dostępu do usług online)",
-        "Instalacja telefoniczna Komfort z WLAN i LTE",
-        "Ładowanie bezprzewodowe",
-        "Mirror Link",
-        "System audio z cyfrowym pakietem dźwiękowym (subwoofer + głośnik centralny)",
-        "Gniazda USB i AUX",
-        "Gniazdo 12V",
-        "Gniazdo 230V",
-      ],
-    },
-    {
-      title: "Bezpieczeństwo",
-      items: [
-        "Poduszki powietrzne (kierowcy, pasażera, kolanowa, boczne, kurtyny)",
-        "PreCrash Basic (system bezpieczeństwa proaktywnego)",
-        "System alarmowy z SAFELOCK",
-        "Kontrola ciśnienia w oponach",
-        "Asystent parkowania",
-        "Kamera wielofunkcyjna",
-        "Zestaw naprawczy do opon",
-        "Apteczka, trójkąt ostrzegawczy i kamizelka",
-      ],
-    },
-  ],
+  detailedDescription:
+    "<p>Volkswagen Tiguan w wersji R-Line to propozycja dla kierowcy, ktory szuka praktycznego SUV-a, ale nie chce rezygnowac z dynamiki i dobrego prowadzenia. Nadwozie ma spokojna, elegancka linie, a pakiet stylistyczny R-Line nadaje autu nowoczesny i uporzadkowany wyglad.</p>" +
+    "<p>Jednostka 2.0 TDI o mocy 240 KM i wysokim momencie 500 Nm dobrze wspolpracuje z automatyczna skrzynia DSG. W codziennej jezdzie oznacza to plynne ruszanie, wygodne wyprzedzanie i duzy zapas mocy na trasie. Naped 4Motion poprawia trakcje szczegolnie przy gorszej pogodzie i na slabszej nawierzchni.</p>" +
+    "<p>Wnetrze Tiguana jest przestronne i funkcjonalne. Samochod sprawdzi sie zarowno jako auto rodzinne, jak i wygodny srodek transportu na dluzsze wyjazdy. To model, ktory laczy komfort, bezpieczenstwo i uniwersalnosc - bez zbednych kompromisow.</p>",
   engine: "1 968 cm3",
   power: "240 KM",
   mileage: "169 078 km",
   gearbox: "Automatyczna DSG",
+  fuel: "Diesel",
+  drive: "4Motion",
+  saleForm: "Faktura VAT marża",
   price: "83 900 PLN",
-  otomotoUrl: "https://www.otomoto.pl/osobowe/oferta/volkswagen-tiguan-ID6HUNRM.html",
+  otomotoUrl:
+    "https://www.otomoto.pl/osobowe/oferta/volkswagen-tiguan-ID6HUNRM.html",
   tag: "Od ręki",
   gallery: [vw001, vw002, vw003, vw004, vw005],
 };

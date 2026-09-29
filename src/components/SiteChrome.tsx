@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import logo from "../assets/logo.png";
+import logoDark from "../assets/logo-dark-mode.png";
+import logoLight from "../assets/logo-white-mode.png";
 import {
   ACCENT_COLOR_DARK,
   accent,
@@ -20,6 +21,24 @@ const NAV_LINKS = [
   { to: "/#stock", label: "Oferta", match: "/samochod" },
   { to: "/jak-dzialamy", label: "Jak działamy", match: "/jak-dzialamy" },
   { to: "/kontakt", label: "Kontakt", match: "/kontakt" },
+];
+
+const SOCIAL_LINKS = [
+  {
+    href: "https://www.instagram.com/carmentorpl/",
+    label: "Instagram",
+    icon: "instagram" as const,
+  },
+  {
+    href: "https://www.facebook.com/profile.php?id=61588489465953",
+    label: "Facebook",
+    icon: "facebook" as const,
+  },
+  {
+    href: "https://carmentor.otomoto.pl/",
+    label: "Otomoto",
+    icon: "otomoto" as const,
+  },
 ];
 
 const Nav = styled.nav<ThemeProps>`
@@ -78,8 +97,10 @@ const NavLink = styled(Link)<ThemeProps & { $active: boolean }>`
   border-radius: 999px;
   font-size: 0.93rem;
   font-weight: 600;
-  color: ${({ $active, $isDark }) => ($active ? accent({ $isDark }) : textBody({ $isDark }))};
-  background: ${({ $active, $isDark }) => ($active ? accentSoft({ $isDark }) : "transparent")};
+  color: ${({ $active, $isDark }) =>
+    $active ? accent({ $isDark }) : textBody({ $isDark })};
+  background: ${({ $active, $isDark }) =>
+    $active ? accentSoft({ $isDark }) : "transparent"};
 
   &:hover {
     color: ${textStrong};
@@ -91,6 +112,46 @@ const NavActions = styled.div`
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+`;
+
+const SocialLinks = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+`;
+
+const SocialLink = styled.a<ThemeProps>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid ${borderStrong};
+  color: ${textStrong};
+  background: transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: ${surfaceMuted};
+    color: ${accent};
+    border-color: ${accent};
+  }
+
+  @media (max-width: 400px) {
+    width: 36px;
+    height: 36px;
+  }
+`;
+
+const MobileSocialLinks = styled.div`
+  display: flex;
+  gap: 8px;
+  padding: 12px 4px 4px;
 `;
 
 const ThemeButton = styled.button<ThemeProps>`
@@ -281,6 +342,41 @@ type ChromeProps = {
   onToggleTheme: () => void;
 };
 
+function SocialIcon({
+  name,
+  size = 18,
+}: {
+  name: (typeof SOCIAL_LINKS)[number]["icon"];
+  size?: number;
+}) {
+  if (name === "instagram") {
+    return (
+      <Icon size={size}>
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </Icon>
+    );
+  }
+
+  if (name === "facebook") {
+    return (
+      <Icon size={size}>
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+      </Icon>
+    );
+  }
+
+  return (
+    <Icon size={size}>
+      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+      <circle cx="7" cy="17" r="2" />
+      <path d="M9 17h6" />
+      <circle cx="17" cy="17" r="2" />
+    </Icon>
+  );
+}
+
 export function SiteNavigation({ isDarkMode, onToggleTheme }: ChromeProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -295,7 +391,7 @@ export function SiteNavigation({ isDarkMode, onToggleTheme }: ChromeProps) {
     <Nav $isDark={isDarkMode}>
       <NavInner>
         <Link to="/">
-          <LogoImage src={logo} alt="Car Mentor" />
+          <LogoImage src={isDarkMode ? logoDark : logoLight} alt="Car Mentor" />
         </Link>
         <NavLinks $isDark={isDarkMode}>
           {NAV_LINKS.map((link) => (
@@ -310,6 +406,21 @@ export function SiteNavigation({ isDarkMode, onToggleTheme }: ChromeProps) {
           ))}
         </NavLinks>
         <NavActions>
+          <SocialLinks>
+            {SOCIAL_LINKS.map((link) => (
+              <SocialLink
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+                title={link.label}
+                $isDark={isDarkMode}
+              >
+                <SocialIcon name={link.icon} size={14} />
+              </SocialLink>
+            ))}
+          </SocialLinks>
           <ThemeButton
             type="button"
             $isDark={isDarkMode}
@@ -329,7 +440,11 @@ export function SiteNavigation({ isDarkMode, onToggleTheme }: ChromeProps) {
           </ThemeButton>
           <MobileMenuButton $isDark={isDarkMode} onClick={toggle}>
             <Icon size={16}>
-              {mobileOpen ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+              {mobileOpen ? (
+                <path d="M6 6l12 12M18 6 6 18" />
+              ) : (
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              )}
             </Icon>
             {mobileOpen ? "Zamknij" : "Menu"}
           </MobileMenuButton>
@@ -342,6 +457,21 @@ export function SiteNavigation({ isDarkMode, onToggleTheme }: ChromeProps) {
               {link.label}
             </Link>
           ))}
+          <MobileSocialLinks>
+            {SOCIAL_LINKS.map((link) => (
+              <SocialLink
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+                title={link.label}
+                $isDark={isDarkMode}
+              >
+                <SocialIcon name={link.icon} size={15} />
+              </SocialLink>
+            ))}
+          </MobileSocialLinks>
         </MobileMenuOverlay>
       )}
     </Nav>
@@ -385,7 +515,7 @@ export function SiteFooter({ isDarkMode }: Pick<ChromeProps, "isDarkMode">) {
                 <rect x="3" y="5" width="18" height="14" rx="2" />
                 <path d="m3 7 9 6 9-6" />
               </Icon>
-              kontakt@carmentor.pl
+              biuro@carmentor.pl
             </li>
             <li>
               <Icon size={16}>
