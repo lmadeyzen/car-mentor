@@ -232,7 +232,7 @@ const MobileMenuOverlay = styled.div<ThemeProps>`
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
     animation: ${slideDown} 0.2s ease-out;
 
-    a {
+    > a {
       display: flex;
       align-items: center;
       justify-content: space-between;
